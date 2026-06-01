@@ -451,7 +451,7 @@ function App() {
           <div className="w-44 sm:w-64 relative">
             <input
               type="text"
-              placeholder="Cari barang..."
+              placeholder="Cari barang...."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#0B1329] text-xs sm:text-sm text-slate-200 pl-9 pr-3 py-1.5 sm:py-2 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 placeholder-slate-500 transition-all"
