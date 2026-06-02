@@ -19,16 +19,20 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       setNama(initialData.nama);
       setKategori(initialData.kategori);
       setPreviewGambar(initialData.gambarUrl);
-      setSatuanUtamaInput(initialData.opsiVariasi[0].namaVariasi);
-      setHargaUtamaInput("Rp " + initialData.opsiVariasi[0].harga.toLocaleString("id-ID"));
+      setSatuanUtamaInput(initialData.opsiVariasi[0]?.namaVariasi || "");
+      setHargaUtamaInput("Rp " + (initialData.opsiVariasi[0]?.harga.toLocaleString("id-ID") || "0"));
 
       if (initialData.opsiVariasi.length > 1) {
         setPakaiMultiSatuan(true);
-        const sisaVariasi = initialData.opsiVariasi.slice(1).map((v) => ({
-          namaVariasi: v.namaVariasi,
-          hargaText: "Rp " + v.harga.toLocaleString("id-ID"),
-        }));
-        setFormVariasi(sisaVariasi);
+        setFormVariasi(
+          initialData.opsiVariasi.slice(1).map((v) => ({
+            namaVariasi: v.namaVariasi,
+            hargaText: "Rp " + v.harga.toLocaleString("id-ID"),
+          })),
+        );
+      } else {
+        setPakaiMultiSatuan(false);
+        setFormVariasi([]);
       }
     } else {
       resetForm();

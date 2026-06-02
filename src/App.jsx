@@ -76,7 +76,7 @@ function App() {
   };
 
   const handleEditClick = (barang) => {
-    setSelectedProduct(barang);
+    setSelectedProduct(barang); // Ini akan memicu useEffect di ProductForm untuk mengisi data
     setIsOpen(true);
   };
 
@@ -142,10 +142,10 @@ function App() {
       {totalItem === 0 && (
         <button
           onClick={() => {
-            setSelectedProduct(null);
+            setSelectedProduct(null); // PENTING: Set ke null agar Form ter-reset
             setIsOpen(true);
           }}
-          className="fixed bottom-5 right-5 bg-emerald-500 text-[#0B1329] w-12 h-12 rounded-2xl shadow-xl flex items-center justify-center z-40 border border-emerald-400/20"
+          className="fixed bottom-5 right-5 bg-emerald-500 text-black w-12 h-12 rounded-2xl flex items-center justify-center z-40"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -154,6 +154,7 @@ function App() {
       )}
 
       <ProductForm
+        key={isOpen ? "open" : "closed"} // Tambahkan baris ini
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);

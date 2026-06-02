@@ -33,10 +33,22 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
           </button>
           {activeMenuId === barang.id && (
             <div className="absolute right-0 mt-1 w-28 bg-[#0B1329] border border-slate-800 rounded-xl shadow-xl overflow-hidden py-1 z-30">
-              <button onClick={() => onEdit(barang)} className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-sky-400 transition">
+              <button
+                onClick={() => {
+                  onEdit(barang);
+                  setActiveMenuId(null); // Menu tertutup setelah klik Ubah
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-sky-400 transition"
+              >
                 ✏️ Ubah
               </button>
-              <button onClick={() => onDelete(barang.id)} className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-rose-400 transition border-t border-slate-800">
+              <button
+                onClick={() => {
+                  onDelete(barang.id);
+                  setActiveMenuId(null); // Menu tertutup setelah klik Hapus
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-rose-400 transition border-t border-slate-800"
+              >
                 🗑️ Hapus
               </button>
             </div>
