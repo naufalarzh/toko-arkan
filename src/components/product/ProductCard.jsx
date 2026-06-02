@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import VariasiSelector from "./VariasiSelector";
+import { DEFAULT_IMAGE } from "../../utils/constants";
 
-const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
+const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const menuRef = useRef(null);
 
@@ -10,6 +11,9 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
   const keyItemKeranjang = `${barang.id}-${infoVariasiAktif.namaVariasi}`;
   const kuantitasDiKeranjang = keranjang[keyItemKeranjang] || 0;
 
+  // Gambar sesuai variasi yang dipilih, fallback ke gambar utama atau default
+  const gambarTampil = infoVariasiAktif.gambarUrl || barang.gambarUrl || DEFAULT_IMAGE;
+
   const toggleMenu = () => {
     setActiveMenuId(activeMenuId === barang.id ? null : barang.id);
   };
@@ -17,7 +21,7 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
   return (
     <div className="bg-[#1C2541] rounded-2xl overflow-hidden border border-slate-800 shadow-lg flex flex-col relative group">
       <div className="relative aspect-square bg-[#0B1329] overflow-hidden w-full">
-        <img src={barang.gambarUrl} alt={barang.nama} className="w-full h-full object-cover" />
+        <img src={gambarTampil} alt={barang.nama} className="w-full h-full object-cover" />
         <span className="absolute top-2 left-2 bg-[#0B1329]/90 text-emerald-400 text-[9px] font-bold px-2 py-1 rounded-lg uppercase border border-slate-800 z-10">{barang.kategori}</span>
 
         <div className="absolute top-2 right-2 z-20" ref={menuRef}>
@@ -36,7 +40,7 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
               <button
                 onClick={() => {
                   onEdit(barang);
-                  setActiveMenuId(null); // Menu tertutup setelah klik Ubah
+                  setActiveMenuId(null);
                 }}
                 className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-sky-400 transition"
               >
@@ -45,7 +49,7 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
               <button
                 onClick={() => {
                   onDelete(barang.id);
-                  setActiveMenuId(null); // Menu tertutup setelah klik Hapus
+                  setActiveMenuId(null);
                 }}
                 className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-rose-400 transition border-t border-slate-800"
               >
@@ -68,15 +72,22 @@ const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, var
             <span className="text-base sm:text-lg font-black text-emerald-400 block whitespace-nowrap">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
 
-          {/* Tombol tambah sudah dihapus, jika ada kuantitas, hanya tampilkan info jumlah */}
-          {kuantitasDiKeranjang > 0 && (
-            <div className="flex items-center space-x-2 bg-[#0B1329] px-3 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-[10px] font-bold text-slate-400">{kuantitasDiKeranjang}x di Keranjang</span>
-              <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-xs hover:text-rose-300">
-                ✕
-              </button>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            {kuantitasDiKeranjang > 0 && (
+              <div className="flex items-center space-x-1 bg-[#0B1329] px-2 py-1 rounded-lg border border-slate-800">
+                <span className="text-[10px] font-bold text-slate-400">{kuantitasDiKeranjang}</span>
+                <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-xs hover:text-rose-300">
+                  ✕
+                </button>
+              </div>
+            )}
+            <button
+              onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
+              className="bg-emerald-500 text-[#0B1329] w-7 h-7 rounded-lg font-bold text-base shadow-md hover:bg-emerald-400 transition"
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
     </div>

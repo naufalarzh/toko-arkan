@@ -5,11 +5,6 @@ import { formatRupiah, parseRupiahToNumber } from "../../utils/formatters";
 const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [nama, setNama] = useState("");
   const [kategori, setKategori] = useState("");
-  const [previewGambar, setPreviewGambar] = useState(null);
-  const [fileGambar, setFileGambar] = useState(null);
-  const [satuanUtamaInput, setSatuanUtamaInput] = useState("");
-  const [hargaUtamaInput, setHargaUtamaInput] = useState("");
-  const [pakaiMultiSatuan, setPakaiMultiSatuan] = useState(false);
   const [formVariasi, setFormVariasi] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -18,22 +13,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       setIsEditMode(true);
       setNama(initialData.nama);
       setKategori(initialData.kategori);
-      setPreviewGambar(initialData.gambarUrl);
-      setSatuanUtamaInput(initialData.opsiVariasi[0]?.namaVariasi || "");
-      setHargaUtamaInput("Rp " + (initialData.opsiVariasi[0]?.harga.toLocaleString("id-ID") || "0"));
-
-      if (initialData.opsiVariasi.length > 1) {
-        setPakaiMultiSatuan(true);
-        setFormVariasi(
-          initialData.opsiVariasi.slice(1).map((v) => ({
-            namaVariasi: v.namaVariasi,
-            hargaText: "Rp " + v.harga.toLocaleString("id-ID"),
-          })),
-        );
-      } else {
-        setPakaiMultiSatuan(false);
-        setFormVariasi([]);
-      }
+      setFormVariasi(
+        initialData.opsiVariasi.map((v, idx) => ({
+          id: idx,
+          namaVariasi: v.namaVariasi,
+          harga: v.harga,
+          hargaText: "Rp " + v.harga.toLocaleString("id-ID"),
+          gambarPreview: v.gambarUrl || null,
+          gambarFile: null,
+          gambarUrl: v.gambarUrl || null,
+        })),
+      );
     } else {
       resetForm();
     }
@@ -42,12 +32,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const resetForm = () => {
     setNama("");
     setKategori("");
-    setPreviewGambar(null);
-    setFileGambar(null);
-    setSatuanUtamaInput("");
-    setHargaUtamaInput("");
-    setPakaiMultiSatuan(false);
-    setFormVariasi([]);
+    setFormVariasi([
+      {
+        id: Date.now(),
+        namaVariasi: "",
+        harga: 0,
+        hargaText: "",
+        gambarPreview: null,
+        gambarFile: null,
+        gambarUrl: null,
+      },
+    ]);
     setIsEditMode(false);
   };
 
@@ -56,73 +51,85 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     onClose();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!nama || !hargaUtamaInput) return;
-
-    const variasiSatu = {
-      namaVariasi: satuanUtamaInput || (pakaiMultiSatuan ? "1 Pcs" : "Satuan"),
-      harga: parseRupiahToNumber(hargaUtamaInput),
-    };
-
-    const variasiTambahan = formVariasi.map((v) => ({
-      namaVariasi: v.namaVariasi || "Eceran",
-      harga: parseRupiahToNumber(v.hargaText),
-    }));
-
-    const opsiVariasiBersih = [variasiSatu, ...variasiTambahan];
-
-    onSubmit({
-      nama,
-      kategori: kategori || "Lainnya",
-      gambar_url: previewGambar,
-      opsi_variasi: opsiVariasiBersih,
-      fileGambar,
-      isEditMode,
-      editId: initialData?.id,
-      oldImageUrl: initialData?.gambarUrl,
-    });
-  };
-
-  const handleGambarFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFileGambar(file);
-      setPreviewGambar(URL.createObjectURL(file));
+  const handleVariasiChange = (index, field, value) => {
+    const updated = [...formVariasi];
+    if (field === "hargaText") {
+      const formatted = formatRupiah(value);
+      updated[index].hargaText = formatted;
+      updated[index].harga = parseRupiahToNumber(formatted);
+    } else if (field === "namaVariasi") {
+      updated[index].namaVariasi = value;
     }
+    setFormVariasi(updated);
   };
 
-  const handlePaste = (e) => {
+  const handleGambarChange = (index, file, previewUrl) => {
+    const updated = [...formVariasi];
+    updated[index].gambarFile = file;
+    updated[index].gambarPreview = previewUrl;
+    updated[index].gambarUrl = previewUrl;
+    setFormVariasi(updated);
+  };
+
+  const handlePaste = (index, e) => {
     const items = e.clipboardData?.items;
     if (items) {
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf("image") !== -1) {
           const blob = items[i].getAsFile();
-          setFileGambar(blob);
-          setPreviewGambar(URL.createObjectURL(blob));
+          const previewUrl = URL.createObjectURL(blob);
+          handleGambarChange(index, blob, previewUrl);
           break;
         }
       }
     }
   };
 
-  const tambahBarisVariasiForm = () => {
-    setPakaiMultiSatuan(true);
-    setFormVariasi([...formVariasi, { namaVariasi: "", hargaText: "" }]);
+  const tambahVariasi = () => {
+    setFormVariasi([
+      ...formVariasi,
+      {
+        id: Date.now(),
+        namaVariasi: "",
+        harga: 0,
+        hargaText: "",
+        gambarPreview: null,
+        gambarFile: null,
+        gambarUrl: null,
+      },
+    ]);
   };
 
-  const hapusBarisVariasiForm = (index) => {
+  const hapusVariasi = (index) => {
+    if (formVariasi.length <= 1) return;
     const updated = formVariasi.filter((_, i) => i !== index);
     setFormVariasi(updated);
-    if (updated.length === 0) {
-      setPakaiMultiSatuan(false);
-    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!nama || formVariasi.some((v) => !v.namaVariasi || !v.harga)) return;
+
+    const opsiVariasi = formVariasi.map((v) => ({
+      namaVariasi: v.namaVariasi,
+      harga: v.harga,
+      gambarUrl: v.gambarUrl,
+      gambarFile: v.gambarFile,
+    }));
+
+    onSubmit({
+      nama,
+      kategori: kategori || "Lainnya",
+      opsi_variasi: opsiVariasi,
+      isEditMode,
+      editId: initialData?.id,
+    });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4" onPaste={handlePaste}>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
       <div className="bg-[#1C2541] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#0B1329] p-1.5 rounded-full">
           ✕
@@ -130,7 +137,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
         <div className="mb-4">
           <h2 className="text-lg font-extrabold text-white">{isEditMode ? "Ubah Produk Warung" : "Tambah Produk Warung"}</h2>
-          <p className="text-slate-400 text-xs mt-0.5">Kelola katalog dagangan TOKO ARKAN secara presisi.</p>
+          <p className="text-slate-400 text-xs mt-0.5">Setiap tipe bisa punya gambar sendiri</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -141,7 +148,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               value={nama}
               onChange={(e) => setNama(e.target.value)}
               className="w-full bg-[#0B1329] border border-slate-800 rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              placeholder="Contoh: Terigu Segitiga"
+              placeholder="Contoh: Djarum Coklat"
               required
             />
           </div>
@@ -152,7 +159,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               {LIST_KATEGORI.slice(1).map((k) => (
                 <button
                   key={k}
-                  type="button" // PENTING: pakai type="button" agar form tidak langsung ter-submit
+                  type="button"
                   onClick={() => setKategori(k)}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
                     kategori === k ? "bg-emerald-500 text-[#0B1329] border-emerald-500" : "bg-[#0B1329] text-slate-400 border-slate-800 hover:border-emerald-500/50"
@@ -164,97 +171,81 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Harga Satuan Utama *</label>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={satuanUtamaInput}
-                onChange={(e) => setSatuanUtamaInput(e.target.value)}
-                className="w-1/3 bg-[#0B1329] border border-slate-800 rounded-xl p-2.5 text-xs sm:text-sm text-white text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                placeholder="Misal: Bungkus / Kg"
-                required
-              />
-              <input
-                type="text"
-                value={hargaUtamaInput}
-                onChange={(e) => setHargaUtamaInput(formatRupiah(e.target.value))}
-                className="w-2/3 bg-[#0B1329] border border-slate-800 rounded-xl p-2.5 text-xs sm:text-sm text-emerald-400 font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                placeholder="Rp 0"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <label className="block text-xs font-bold text-slate-400 uppercase">Eceran Satuan Lain (Opsional)</label>
+          <div className="border-t border-slate-800 pt-2">
+            <div className="flex justify-between items-center mb-3">
+              <label className="block text-xs font-bold text-slate-400 uppercase">Tipe / Variasi *</label>
               <button
                 type="button"
-                onClick={tambahBarisVariasiForm}
+                onClick={tambahVariasi}
                 className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-xl font-bold hover:bg-emerald-500 hover:text-[#0B1329] transition"
               >
-                + Tambah Satuan
+                + Tambah Tipe
               </button>
             </div>
 
-            {pakaiMultiSatuan &&
-              formVariasi.map((variasi, index) => (
-                <div key={index} className="flex items-center space-x-2 bg-[#0B1329] p-2 rounded-xl border border-slate-800 animate-fade-in">
+            {formVariasi.map((variasi, index) => (
+              <div key={variasi.id} className="bg-[#0B1329] p-3 rounded-xl border border-slate-800 mb-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
+                  {formVariasi.length > 1 && (
+                    <button type="button" onClick={() => hapusVariasi(index)} className="text-rose-500 text-xs">
+                      ✕ Hapus
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex space-x-2 mb-2">
                   <input
                     type="text"
                     value={variasi.namaVariasi}
-                    onChange={(e) => {
-                      const updated = [...formVariasi];
-                      updated[index].namaVariasi = e.target.value;
-                      setFormVariasi(updated);
-                    }}
-                    className="w-1/3 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-white text-center focus:outline-none"
-                    placeholder="Misal: 1 Batang"
+                    onChange={(e) => handleVariasiChange(index, "namaVariasi", e.target.value)}
+                    className="flex-1 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    placeholder="Tipe (contoh: Kretek / Extra / Mocca)"
                     required
                   />
                   <input
                     type="text"
                     value={variasi.hargaText}
-                    onChange={(e) => {
-                      const updated = [...formVariasi];
-                      updated[index].hargaText = formatRupiah(e.target.value);
-                      setFormVariasi(updated);
-                    }}
-                    className="w-2/3 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-emerald-400 font-bold focus:outline-none"
+                    onChange={(e) => handleVariasiChange(index, "hargaText", e.target.value)}
+                    className="w-32 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-emerald-400 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     placeholder="Rp 0"
                     required
                   />
-                  <button type="button" onClick={() => hapusBarisVariasiForm(index)} className="text-rose-500 hover:text-rose-400 text-xs px-1 font-bold">
-                    ✕
-                  </button>
                 </div>
-              ))}
-          </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Foto Produk</label>
-            <div className="bg-[#0B1329] border-2 border-dashed border-slate-800 rounded-xl p-3 text-center cursor-pointer hover:border-emerald-500/40 relative">
-              <input type="file" accept="image/*" onChange={handleGambarFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-              <p className="text-[11px] text-slate-400">
-                Klik / <span className="text-emerald-400 font-bold">Tekan Ctrl + V</span> untuk paste gambar
-              </p>
-            </div>
-            {previewGambar && (
-              <div className="mt-3 relative w-20 h-20 border border-slate-800 rounded-xl overflow-hidden bg-[#0B1329] mx-auto">
-                <img src={previewGambar} alt="Preview" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPreviewGambar(null);
-                    setFileGambar(null);
-                  }}
-                  className="absolute top-0 right-0 bg-rose-600 text-white text-[10px] p-1 rounded-bl-md"
-                >
-                  ✕
-                </button>
+                <div>
+                  <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
+                  <div
+                    className="bg-[#1C2541] border-2 border-dashed border-slate-800 rounded-xl p-2 text-center cursor-pointer hover:border-emerald-500/40 relative"
+                    onPaste={(e) => handlePaste(index, e)}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const previewUrl = URL.createObjectURL(file);
+                          handleGambarChange(index, file, previewUrl);
+                        }
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                    <p className="text-[10px] text-slate-400">
+                      📷 Klik / <span className="text-emerald-400 font-bold">Ctrl+V</span> paste
+                    </p>
+                  </div>
+                  {variasi.gambarPreview && (
+                    <div className="mt-2 relative w-16 h-16 border border-slate-800 rounded-lg overflow-hidden bg-[#0B1329] mx-auto">
+                      <img src={variasi.gambarPreview} alt="Preview" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => handleGambarChange(index, null, null)} className="absolute top-0 right-0 bg-rose-600 text-white text-[8px] p-0.5 rounded-bl-md">
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            ))}
           </div>
 
           <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800 mt-4">
