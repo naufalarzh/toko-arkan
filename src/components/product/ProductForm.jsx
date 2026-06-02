@@ -147,19 +147,21 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Kategori</label>
-            <select
-              value={kategori}
-              onChange={(e) => setKategori(e.target.value)}
-              className="w-full bg-[#0B1329] border border-slate-800 rounded-xl p-2.5 text-xs sm:text-sm text-white focus:outline-none"
-            >
-              <option value="">Pilih Kategori</option>
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Kategori</label>
+            <div className="flex flex-wrap gap-2">
               {LIST_KATEGORI.slice(1).map((k) => (
-                <option key={k} value={k}>
+                <button
+                  key={k}
+                  type="button" // PENTING: pakai type="button" agar form tidak langsung ter-submit
+                  onClick={() => setKategori(k)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                    kategori === k ? "bg-emerald-500 text-[#0B1329] border-emerald-500" : "bg-[#0B1329] text-slate-400 border-slate-800 hover:border-emerald-500/50"
+                  }`}
+                >
                   {k}
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           <div>
