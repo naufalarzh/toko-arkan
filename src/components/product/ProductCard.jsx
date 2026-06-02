@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import VariasiSelector from "./VariasiSelector";
-import { DEFAULT_IMAGE } from "../../utils/constants";
+import noPictures from "../../assets/no-pictures.png";
 
 const ProductCard = ({ barang, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
   const [activeMenuId, setActiveMenuId] = useState(null);
@@ -8,7 +8,17 @@ const ProductCard = ({ barang, onEdit, onDelete, variasiTerpilih, setVariasiTerp
 
   const idxVar = variasiTerpilih[barang.id] || 0;
   const infoVariasiAktif = barang.opsiVariasi[idxVar] || barang.opsiVariasi[0];
-  const gambarTampil = infoVariasiAktif.gambarUrl || barang.gambarUrl || DEFAULT_IMAGE;
+
+  // LOGIKA GAMBAR: prioritas variasi -> gambar barang -> no-pictures lokal
+  const gambarDariVariasi = infoVariasiAktif?.gambarUrl;
+  const gambarDariBarang = barang?.gambarUrl;
+
+  const gambarTampil =
+    gambarDariVariasi && gambarDariVariasi !== "" && !gambarDariVariasi.includes("No Image") && !gambarDariVariasi.includes("placehold")
+      ? gambarDariVariasi
+      : gambarDariBarang && gambarDariBarang !== "" && !gambarDariBarang.includes("No Image") && !gambarDariBarang.includes("placehold")
+        ? gambarDariBarang
+        : noPictures;
 
   const toggleMenu = () => {
     setActiveMenuId(activeMenuId === barang.id ? null : barang.id);

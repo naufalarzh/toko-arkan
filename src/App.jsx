@@ -10,6 +10,7 @@ import { useProducts } from "./hooks/useProducts";
 import { useToast } from "./hooks/useToast";
 import { uploadGambarKeStorage } from "./utils/imageUpload";
 import { DEFAULT_IMAGE } from "./utils/constants";
+import noPictures from "./assets/no-pictures.png";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +36,7 @@ function App() {
       const dataToSave = {
         nama: productData.nama,
         kategori: productData.kategori,
-        gambar_url: urlGambarFinal || DEFAULT_IMAGE,
+        gambar_url: urlGambarFinal || null,
         opsi_variasi: productData.opsi_variasi,
       };
 
