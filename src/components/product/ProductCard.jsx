@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import VariasiSelector from "./VariasiSelector";
 
-const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
+const ProductCard = ({ barang, keranjang, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const menuRef = useRef(null);
 
@@ -50,38 +50,21 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
           <VariasiSelector opsiVariasi={barang.opsiVariasi} selectedIndex={idxVar} onSelect={(index) => setVariasiTerpilih({ ...variasiTerpilih, [barang.id]: index })} />
         </div>
 
-        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
           <div>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">Harga Jual</span>
             <span className="text-base sm:text-lg font-black text-emerald-400 block whitespace-nowrap">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
 
-          <div className="w-full sm:w-28 flex-shrink-0">
-            {kuantitasDiKeranjang === 0 ? (
-              <button
-                onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                className="w-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-[#0B1329] font-bold py-2 sm:py-1.5 px-3 rounded-xl text-xs transition-all border border-emerald-500/30 shadow-md text-center"
-              >
-                + Tambah
+          {/* Tombol tambah sudah dihapus, jika ada kuantitas, hanya tampilkan info jumlah */}
+          {kuantitasDiKeranjang > 0 && (
+            <div className="flex items-center space-x-2 bg-[#0B1329] px-3 py-1.5 rounded-xl border border-slate-800">
+              <span className="text-[10px] font-bold text-slate-400">{kuantitasDiKeranjang}x di Keranjang</span>
+              <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-xs hover:text-rose-300">
+                ✕
               </button>
-            ) : (
-              <div className="flex items-center justify-between bg-[#0B1329] rounded-xl border border-slate-800 p-1 w-full shadow-inner">
-                <button
-                  onClick={() => kurangKuantitas(keyItemKeranjang)}
-                  className="bg-[#1C2541] text-rose-400 font-extrabold w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors hover:bg-rose-500/10"
-                >
-                  -
-                </button>
-                <span className="font-black text-xs text-white px-1">{kuantitasDiKeranjang}</span>
-                <button
-                  onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                  className="bg-[#1C2541] text-emerald-400 font-extrabold w-7 h-7 rounded-lg flex items-center justify-center text-xs"
-                >
-                  +
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
