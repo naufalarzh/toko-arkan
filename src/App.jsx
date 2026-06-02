@@ -93,11 +93,13 @@ function App() {
     setShowDetail(false);
   };
 
-  const barangDifilter = daftarBarang.filter((b) => {
-    const cocokKategori = kategoriAktif === "Semua" || b.kategori === kategoriAktif;
-    const cocokPencarian = b.nama.toLowerCase().includes(searchQuery.toLowerCase());
-    return cocokKategori && cocokPencarian;
-  });
+  const barangDifilter = [...daftarBarang]
+    .sort((a, b) => a.nama.localeCompare(b.nama))
+    .filter((b) => {
+      const cocokKategori = kategoriAktif === "Semua" || b.kategori === kategoriAktif;
+      const cocokPencarian = b.nama.toLowerCase().includes(searchQuery.toLowerCase());
+      return cocokKategori && cocokPencarian;
+    });
 
   return (
     <div className="min-h-screen bg-[#0B1329] text-slate-200 antialiased selection:bg-emerald-500 selection:text-white">
