@@ -4,16 +4,16 @@ import KategoriBar from "./components/layout/KategoriBar";
 import LoadingOverlay from "./components/layout/LoadingOverlay";
 import ProductGrid from "./components/product/ProductGrid";
 import ProductForm from "./components/product/ProductForm";
+import CartFooter from "./components/cart/CartFooter";
 import ConfirmDeleteModal from "./components/modals/ConfirmDeleteModal";
 import ToastNotification from "./components/modals/ToastNotification";
 import { useProducts } from "./hooks/useProducts";
+import { useCart } from "./hooks/useCart";
 import { useToast } from "./hooks/useToast";
-import { uploadGambarKeStorage } from "./utils/imageUpload";
-import { DEFAULT_IMAGE } from "./utils/constants";
-import noPictures from "./assets/no-pictures.png";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const [kategoriAktif, setKategoriAktif] = useState("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [variasiTerpilih, setVariasiTerpilih] = useState({});
@@ -21,26 +21,23 @@ function App() {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, name: "" });
 
   const { daftarBarang, isLoading, setIsLoading, saveProduct, deleteProduct } = useProducts();
+  const { keranjang, tambahKuantitas, kurangKuantitas, clearCart, hitungTotalBelanja } = useCart();
   const { toastMessage, setToastMessage } = useToast();
+
+  const { totalHarga, totalItem, detailProdukTerpilih } = hitungTotalBelanja(daftarBarang);
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
     try {
-      let urlGambarFinal = productData.gambar_url;
-
-      if (productData.fileGambar) {
-        setToastMessage("⏳ Mengunggah gambar...");
-        urlGambarFinal = await uploadGambarKeStorage(productData.fileGambar, productData.oldImageUrl);
-      }
-
-      const dataToSave = {
-        nama: productData.nama,
-        kategori: productData.kategori,
-        gambar_url: urlGambarFinal || null,
-        opsi_variasi: productData.opsi_variasi,
-      };
-
-      const result = await saveProduct(dataToSave, productData.isEditMode, productData.editId);
+      const result = await saveProduct(
+        {
+          nama: productData.nama,
+          kategori: productData.kategori,
+          opsi_variasi: productData.opsi_variasi,
+        },
+        productData.isEditMode,
+        productData.editId,
+      );
 
       if (result.success) {
         setToastMessage(productData.isEditMode ? "✨ Produk diperbarui!" : "✨ Produk baru ditambahkan!");
@@ -59,7 +56,7 @@ function App() {
 
   const handleDeleteProduct = async () => {
     const barang = daftarBarang.find((b) => b.id === deleteModal.id);
-    const result = await deleteProduct(deleteModal.id, barang?.gambarUrl);
+    const result = await deleteProduct(deleteModal.id, barang?.opsiVariasi || []);
 
     if (result.success) {
       setToastMessage("✨ Produk berhasil dihapus!");
@@ -82,6 +79,12 @@ function App() {
     }
   };
 
+  const handleCheckout = () => {
+    setToastMessage("✅ Transaksi berhasil diproses!");
+    clearCart();
+    setShowDetail(false);
+  };
+
   const barangDifilter = [...daftarBarang]
     .sort((a, b) => a.nama.localeCompare(b.nama))
     .filter((b) => {
@@ -98,19 +101,42 @@ function App() {
       <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <KategoriBar kategoriAktif={kategoriAktif} setKategoriAktif={setKategoriAktif} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-52 sm:pb-44">
         <main>
-          <ProductGrid products={barangDifilter} onEdit={handleEditClick} onDelete={handleDeleteClick} variasiTerpilih={variasiTerpilih} setVariasiTerpilih={setVariasiTerpilih} />
+          <ProductGrid
+            products={barangDifilter}
+            keranjang={keranjang}
+            tambahKuantitas={tambahKuantitas}
+            kurangKuantitas={kurangKuantitas}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            variasiTerpilih={variasiTerpilih}
+            setVariasiTerpilih={setVariasiTerpilih}
+          />
         </main>
       </div>
 
-      {/* Tombol floating untuk tambah produk */}
+      <CartFooter
+        totalItem={totalItem}
+        totalHarga={totalHarga}
+        detailProduk={detailProdukTerpilih}
+        kurangKuantitas={kurangKuantitas}
+        onClearCart={() => {
+          clearCart();
+          setShowDetail(false);
+          setToastMessage("🗑️ Keranjang belanja dikosongkan");
+        }}
+        onCheckout={handleCheckout}
+        showDetail={showDetail}
+        setShowDetail={setShowDetail}
+      />
+
       <button
         onClick={() => {
           setSelectedProduct(null);
           setIsOpen(true);
         }}
-        className="fixed bottom-5 right-5 bg-emerald-500 text-black w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg"
+        className="fixed bottom-5 right-5 bg-emerald-500 text-black w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg hover:bg-emerald-400 transition"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
