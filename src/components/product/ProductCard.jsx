@@ -2,16 +2,12 @@ import React, { useRef, useState } from "react";
 import VariasiSelector from "./VariasiSelector";
 import { DEFAULT_IMAGE } from "../../utils/constants";
 
-const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
+const ProductCard = ({ barang, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const menuRef = useRef(null);
 
   const idxVar = variasiTerpilih[barang.id] || 0;
   const infoVariasiAktif = barang.opsiVariasi[idxVar] || barang.opsiVariasi[0];
-  const keyItemKeranjang = `${barang.id}-${infoVariasiAktif.namaVariasi}`;
-  const kuantitasDiKeranjang = keranjang[keyItemKeranjang] || 0;
-
-  // Gambar sesuai variasi yang dipilih, fallback ke gambar utama atau default
   const gambarTampil = infoVariasiAktif.gambarUrl || barang.gambarUrl || DEFAULT_IMAGE;
 
   const toggleMenu = () => {
@@ -66,27 +62,10 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
           <VariasiSelector opsiVariasi={barang.opsiVariasi} selectedIndex={idxVar} onSelect={(index) => setVariasiTerpilih({ ...variasiTerpilih, [barang.id]: index })} />
         </div>
 
-        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800">
           <div>
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">Harga Jual</span>
-            <span className="text-base sm:text-lg font-black text-emerald-400 block whitespace-nowrap">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            {kuantitasDiKeranjang > 0 && (
-              <div className="flex items-center space-x-1 bg-[#0B1329] px-2 py-1 rounded-lg border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400">{kuantitasDiKeranjang}</span>
-                <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-xs hover:text-rose-300">
-                  ✕
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-              className="bg-emerald-500 text-[#0B1329] w-7 h-7 rounded-lg font-bold text-base shadow-md hover:bg-emerald-400 transition"
-            >
-              +
-            </button>
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">HARGA JUAL</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400 block">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
         </div>
       </div>
