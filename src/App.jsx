@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "./components/layout/Navbar";
 import KategoriBar from "./components/layout/KategoriBar";
 import LoadingOverlay from "./components/layout/LoadingOverlay";
@@ -25,6 +25,23 @@ function App() {
   const { toastMessage, setToastMessage } = useToast();
 
   const { totalHarga, totalItem, detailProdukTerpilih } = hitungTotalBelanja(daftarBarang);
+
+  // ========== PRELOAD GAMBAR ==========
+  // Letakkan di sini, setelah daftarBarang tersedia
+  useEffect(() => {
+    // Preload semua gambar produk agar tidak delay saat ganti variasi
+    daftarBarang.forEach((barang) => {
+      if (barang.opsiVariasi) {
+        barang.opsiVariasi.forEach((variasi) => {
+          if (variasi.gambarUrl && !variasi.gambarUrl.includes("No Image") && !variasi.gambarUrl.includes("placehold")) {
+            const img = new Image();
+            img.src = variasi.gambarUrl;
+          }
+        });
+      }
+    });
+  }, [daftarBarang]); // Jalankan setiap kali daftarBarang berubah
+  // ===================================
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
@@ -85,11 +102,17 @@ function App() {
     setShowDetail(false);
   };
 
+  // Filter produk: cari di nama produk ATAU nama variasi
   const barangDifilter = [...daftarBarang]
     .sort((a, b) => a.nama.localeCompare(b.nama))
     .filter((b) => {
       const cocokKategori = kategoriAktif === "Semua" || b.kategori === kategoriAktif;
-      const cocokPencarian = b.nama.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const searchLower = searchQuery.toLowerCase();
+      const cocokNamaProduk = b.nama.toLowerCase().includes(searchLower);
+      const cocokNamaVariasi = b.opsiVariasi?.some((variasi) => variasi.namaVariasi.toLowerCase().includes(searchLower));
+      const cocokPencarian = cocokNamaProduk || cocokNamaVariasi;
+
       return cocokKategori && cocokPencarian;
     });
 
@@ -131,7 +154,6 @@ function App() {
         setShowDetail={setShowDetail}
       />
 
-      {/* Tombol floating tambah produk - Hanya muncul jika keranjang kosong */}
       {totalItem === 0 && (
         <button
           onClick={() => {

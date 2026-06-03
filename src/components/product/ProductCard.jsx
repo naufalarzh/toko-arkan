@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import VariasiSelector from "./VariasiSelector";
 import noPictures from "../../assets/no-pictures.png";
 
@@ -11,16 +11,20 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
   const keyItemKeranjang = `${barang.id}-${infoVariasiAktif.namaVariasi}`;
   const kuantitasDiKeranjang = keranjang[keyItemKeranjang] || 0;
 
-  // PERBAIKAN: gambar fallback ke no-pictures.png lokal
   const gambarVariasi = infoVariasiAktif?.gambarUrl;
   const gambarUtama = barang?.gambarUrl;
 
-  const gambarTampil =
-    gambarVariasi && gambarVariasi !== "" && !gambarVariasi.includes("No Image") && !gambarVariasi.includes("placehold")
-      ? gambarVariasi
-      : gambarUtama && gambarUtama !== "" && !gambarUtama.includes("No Image") && !gambarUtama.includes("placehold")
-        ? gambarUtama
-        : noPictures;
+  // OPTIMASI: gunakan useMemo untuk caching hasil perhitungan gambar
+  const gambarTampil = useMemo(() => {
+    if (gambarVariasi && gambarVariasi !== "" && !gambarVariasi.includes("No Image") && !gambarVariasi.includes("placehold")) {
+      // Tambahkan parameter timestamp agar image bisa refresh jika perlu
+      return gambarVariasi;
+    }
+    if (gambarUtama && gambarUtama !== "" && !gambarUtama.includes("No Image") && !gambarUtama.includes("placehold")) {
+      return gambarUtama;
+    }
+    return noPictures;
+  }, [gambarVariasi, gambarUtama]); // Re-run hanya jika gambarVariasi/gambarUtama berubah
 
   const toggleMenu = () => {
     setActiveMenuId(activeMenuId === barang.id ? null : barang.id);
@@ -29,7 +33,8 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
   return (
     <div className="bg-[#1C2541] rounded-2xl overflow-hidden border border-slate-800 shadow-lg flex flex-col relative group">
       <div className="relative aspect-square bg-[#0B1329] overflow-hidden w-full">
-        <img src={gambarTampil} alt={barang.nama} className="w-full h-full object-cover" />
+        {/* OPTIMASI: tambahkan loading="lazy" dan decoding="async" */}
+        <img src={gambarTampil} alt={barang.nama} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <span className="absolute top-2 left-2 bg-[#0B1329]/90 text-emerald-400 text-[9px] font-bold px-2 py-1 rounded-lg uppercase border border-slate-800 z-10">{barang.kategori}</span>
 
         <div className="absolute top-2 right-2 z-20" ref={menuRef}>
@@ -74,14 +79,12 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
           <VariasiSelector opsiVariasi={barang.opsiVariasi} selectedIndex={idxVar} onSelect={(index) => setVariasiTerpilih({ ...variasiTerpilih, [barang.id]: index })} />
         </div>
 
-        {/* Bagian Harga dan Tombol */}
         <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800">
           <div>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">HARGA JUAL</span>
             <span className="text-base sm:text-lg font-black text-emerald-400 block">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
 
-          {/* Tombol Tambah / Counter - Style simpel "- 2 +" */}
           <div className="mt-3">
             {kuantitasDiKeranjang > 0 ? (
               <div className="flex items-center justify-center space-x-3 bg-[#0B1329] px-3 py-2 rounded-xl border border-slate-800 w-full">
