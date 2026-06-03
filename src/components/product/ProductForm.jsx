@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { LIST_KATEGORI } from "../../utils/constants";
 import { formatRupiah, parseRupiahToNumber } from "../../utils/formatters";
 
@@ -7,6 +7,9 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [kategori, setKategori] = useState("");
   const [formVariasi, setFormVariasi] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // Ref untuk track area paste global
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (initialData) {
@@ -71,19 +74,38 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     setFormVariasi(updated);
   };
 
-  const handlePaste = (index, e) => {
+  // Fungsi paste global: cari variasi pertama yang belum punya gambar
+  const handleGlobalPaste = (e) => {
     const items = e.clipboardData?.items;
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        e.preventDefault();
+
+        // Cari index variasi pertama yang BELUM punya gambar (gambarPreview null)
+        const emptyImageIndex = formVariasi.findIndex((v) => !v.gambarPreview);
+
+        if (emptyImageIndex !== -1) {
           const blob = items[i].getAsFile();
           const previewUrl = URL.createObjectURL(blob);
-          handleGambarChange(index, blob, previewUrl);
-          break;
+          handleGambarChange(emptyImageIndex, blob, previewUrl);
         }
+        break;
       }
     }
   };
+
+  // Attach global paste listener ke form container
+  useEffect(() => {
+    const formElement = formRef.current;
+    if (formElement && isOpen) {
+      formElement.addEventListener("paste", handleGlobalPaste);
+      return () => {
+        formElement.removeEventListener("paste", handleGlobalPaste);
+      };
+    }
+  }, [isOpen, formVariasi]); // Re-attach saat formVariasi berubah
 
   const tambahVariasi = () => {
     setFormVariasi([
@@ -130,7 +152,10 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-      <div className="bg-[#1C2541] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={formRef}
+        className="bg-[#1C2541] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#0B1329] p-1.5 rounded-full">
           ✕
         </button>
@@ -215,10 +240,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
                 <div>
                   <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
-                  <div
-                    className="bg-[#1C2541] border-2 border-dashed border-slate-800 rounded-xl p-2 text-center cursor-pointer hover:border-emerald-500/40 relative"
-                    onPaste={(e) => handlePaste(index, e)}
-                  >
+                  <div className="bg-[#1C2541] border-2 border-dashed border-slate-800 rounded-xl p-2 text-center cursor-pointer hover:border-emerald-500/40 relative">
                     <input
                       type="file"
                       accept="image/*"

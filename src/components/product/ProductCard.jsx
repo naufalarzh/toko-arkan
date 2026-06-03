@@ -74,33 +74,34 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
           <VariasiSelector opsiVariasi={barang.opsiVariasi} selectedIndex={idxVar} onSelect={(index) => setVariasiTerpilih({ ...variasiTerpilih, [barang.id]: index })} />
         </div>
 
-        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+        {/* Bagian Harga dan Tombol */}
+        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800">
           <div>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">HARGA JUAL</span>
             <span className="text-base sm:text-lg font-black text-emerald-400 block">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
 
-          <div className="flex items-center space-x-2">
-            {kuantitasDiKeranjang > 0 && (
-              <div className="flex items-center space-x-1 bg-[#0B1329] px-2 py-1 rounded-lg border border-slate-800">
-                <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-sm hover:text-rose-300 w-5 h-5 flex items-center justify-center">
+          {/* Tombol Tambah / Counter - Style simpel "- 2 +" */}
+          <div className="mt-3">
+            {kuantitasDiKeranjang > 0 ? (
+              <div className="flex items-center justify-center space-x-3 bg-[#0B1329] px-3 py-2 rounded-xl border border-slate-800 w-full">
+                <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-base w-6 h-6 flex items-center justify-center hover:text-rose-300 transition">
                   -
                 </button>
-                <span className="text-[11px] font-bold text-slate-200 min-w-[20px] text-center">{kuantitasDiKeranjang}</span>
+                <span className="text-sm font-bold text-white min-w-[24px] text-center">{kuantitasDiKeranjang}</span>
                 <button
                   onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                  className="text-emerald-400 font-black text-sm hover:text-emerald-300 w-5 h-5 flex items-center justify-center"
+                  className="text-emerald-400 font-black text-base w-6 h-6 flex items-center justify-center hover:text-emerald-300 transition"
                 >
                   +
                 </button>
               </div>
-            )}
-            {kuantitasDiKeranjang === 0 && (
+            ) : (
               <button
                 onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                className="bg-emerald-500 text-[#0B1329] w-7 h-7 rounded-lg font-bold text-base shadow-md hover:bg-emerald-400 transition"
+                className="w-full bg-emerald-500 text-[#0B1329] py-2 rounded-xl font-bold text-sm shadow-md hover:bg-emerald-400 transition"
               >
-                +
+                + Tambah
               </button>
             )}
           </div>
