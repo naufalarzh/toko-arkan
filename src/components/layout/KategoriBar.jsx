@@ -3,7 +3,7 @@ import { LIST_KATEGORI } from "../../utils/constants";
 
 const KategoriBar = ({ kategoriAktif, setKategoriAktif }) => {
   return (
-    <div className="bg-[#151D35] border-t border-slate-800/60">
+    <div className="sticky top-16 z-20 bg-[#151D35] border-t border-slate-800/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center space-x-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x">
         {LIST_KATEGORI.map((kat) => (
           <button
