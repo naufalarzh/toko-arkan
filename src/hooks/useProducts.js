@@ -39,9 +39,48 @@ export const useProducts = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // ========== CEK DUPLIKAT PRODUK ==========
+  const cekDuplikat = (nama, editId = null) => {
+    const namaLower = nama.toLowerCase().trim();
+    return daftarBarang.some((barang) => {
+      // Jika edit, exclude produk yang sedang diedit
+      if (editId && barang.id === editId) return false;
+      return barang.nama.toLowerCase().trim() === namaLower;
+    });
+  };
+  // =========================================
+
   const saveProduct = async (productData, isEditMode, editId, oldVariasi = null) => {
     setIsLoading(true);
     try {
+      // ========== CEK DUPLIKAT SEBELUM SAVE ==========
+      if (!isEditMode) {
+        // Mode tambah baru - cek duplikat
+        const isDuplicate = cekDuplikat(productData.nama);
+        if (isDuplicate) {
+          return {
+            success: false,
+            error: {
+              message: `Produk "${productData.nama}" sudah ada di database!`,
+              type: "DUPLICATE",
+            },
+          };
+        }
+      } else {
+        // Mode edit - cek duplikat dengan exclude diri sendiri
+        const isDuplicate = cekDuplikat(productData.nama, editId);
+        if (isDuplicate) {
+          return {
+            success: false,
+            error: {
+              message: `Produk "${productData.nama}" sudah ada di database!`,
+              type: "DUPLICATE",
+            },
+          };
+        }
+      }
+      // ==============================================
+
       // Upload gambar untuk setiap variasi yang punya file baru
       const opsiVariasiWithUrls = await Promise.all(
         productData.opsi_variasi.map(async (variasi) => {
@@ -101,5 +140,13 @@ export const useProducts = () => {
     }
   };
 
-  return { daftarBarang, isLoading, setIsLoading, saveProduct, deleteProduct, fetchData };
+  return {
+    daftarBarang,
+    isLoading,
+    setIsLoading,
+    saveProduct,
+    deleteProduct,
+    fetchData,
+    cekDuplikat, // Export fungsi cek duplikat jika diperlukan
+  };
 };

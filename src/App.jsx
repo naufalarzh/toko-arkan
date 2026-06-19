@@ -77,7 +77,13 @@ function App() {
         setIsOpen(false);
         setSelectedProduct(null);
       } else {
-        throw result.error;
+        // ========== CEK APAKAH ERROR DUPLIKAT ==========
+        if (result.error?.type === "DUPLICATE") {
+          showToast(`⚠️ ${result.error.message}`, "warning");
+        } else {
+          throw result.error;
+        }
+        // ==============================================
       }
     } catch (error) {
       console.error("Gagal menyimpan:", error);

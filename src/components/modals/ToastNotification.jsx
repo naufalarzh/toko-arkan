@@ -26,7 +26,7 @@ const ToastNotification = ({ message, type = "success" }) => {
 
   return (
     <div
-      className={`fixed top-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 px-6 py-3 rounded-xl font-bold text-center text-xs sm:text-sm shadow-2xl z-50 transition-all duration-300 ${getColorStyles()}`}
+      className={`fixed top-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 px-6 py-3 rounded-xl font-bold text-center text-xs sm:text-sm shadow-2xl z-[999] transition-all duration-300 ${getColorStyles()}`}
     >
       {message}
     </div>
