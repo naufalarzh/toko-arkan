@@ -14,31 +14,28 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
   const gambarVariasi = infoVariasiAktif?.gambarUrl;
   const gambarUtama = barang?.gambarUrl;
 
-  // OPTIMASI: gunakan useMemo untuk caching hasil perhitungan gambar
   const gambarTampil = useMemo(() => {
     if (gambarVariasi && gambarVariasi !== "" && !gambarVariasi.includes("No Image") && !gambarVariasi.includes("placehold")) {
-      // Tambahkan parameter timestamp agar image bisa refresh jika perlu
       return gambarVariasi;
     }
     if (gambarUtama && gambarUtama !== "" && !gambarUtama.includes("No Image") && !gambarUtama.includes("placehold")) {
       return gambarUtama;
     }
     return noPictures;
-  }, [gambarVariasi, gambarUtama]); // Re-run hanya jika gambarVariasi/gambarUtama berubah
+  }, [gambarVariasi, gambarUtama]);
 
   const toggleMenu = () => {
     setActiveMenuId(activeMenuId === barang.id ? null : barang.id);
   };
 
   return (
-    <div className="bg-[#1C2541] rounded-2xl overflow-hidden border border-slate-800 shadow-lg flex flex-col relative group">
-      <div className="relative aspect-square bg-[#0B1329] overflow-hidden w-full">
-        {/* OPTIMASI: tambahkan loading="lazy" dan decoding="async" */}
+    <div className="bg-[#1A1128] rounded-2xl overflow-hidden border border-amber-500/20 shadow-lg flex flex-col relative group">
+      <div className="relative aspect-square bg-[#0F0A1A] overflow-hidden w-full">
         <img src={gambarTampil} alt={barang.nama} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-        <span className="absolute top-2 left-2 bg-[#0B1329]/90 text-emerald-400 text-[9px] font-bold px-2 py-1 rounded-lg uppercase border border-slate-800 z-10">{barang.kategori}</span>
+        <span className="absolute top-2 left-2 bg-[#0F0A1A]/90 text-amber-400 text-[9px] font-bold px-2 py-1 rounded-lg uppercase border border-amber-500/20 z-10">{barang.kategori}</span>
 
         <div className="absolute top-2 right-2 z-20" ref={menuRef}>
-          <button onClick={toggleMenu} className="bg-[#0B1329]/80 text-white p-1.5 rounded-lg border border-slate-800 shadow-md backdrop-blur-sm transition focus:outline-none">
+          <button onClick={toggleMenu} className="bg-[#0F0A1A]/80 text-white p-1.5 rounded-lg border border-amber-500/20 shadow-md backdrop-blur-sm transition focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -49,13 +46,13 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
             </svg>
           </button>
           {activeMenuId === barang.id && (
-            <div className="absolute right-0 mt-1 w-28 bg-[#0B1329] border border-slate-800 rounded-xl shadow-xl overflow-hidden py-1 z-30">
+            <div className="absolute right-0 mt-1 w-28 bg-[#0F0A1A] border border-amber-500/20 rounded-xl shadow-xl overflow-hidden py-1 z-10">
               <button
                 onClick={() => {
                   onEdit(barang);
                   setActiveMenuId(null);
                 }}
-                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-sky-400 transition"
+                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1A1128] text-sky-400 transition"
               >
                 ✏️ Ubah
               </button>
@@ -64,7 +61,7 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
                   onDelete(barang.id);
                   setActiveMenuId(null);
                 }}
-                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1C2541] text-rose-400 transition border-t border-slate-800"
+                className="w-full text-left px-3 py-2 text-xs font-semibold hover:bg-[#1A1128] text-rose-400 transition border-t border-amber-500/20"
               >
                 🗑️ Hapus
               </button>
@@ -79,22 +76,25 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
           <VariasiSelector opsiVariasi={barang.opsiVariasi} selectedIndex={idxVar} onSelect={(index) => setVariasiTerpilih({ ...variasiTerpilih, [barang.id]: index })} />
         </div>
 
-        <div className="mt-4 pt-2 sm:pt-3 border-t border-slate-800">
+        <div className="mt-4 pt-2 sm:pt-3 border-t border-amber-500/20">
           <div>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block tracking-wide">HARGA JUAL</span>
-            <span className="text-base sm:text-lg font-black text-emerald-400 block">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
+            <span className="text-base sm:text-lg font-black text-amber-400 block">Rp {infoVariasiAktif.harga.toLocaleString("id-ID")}</span>
           </div>
 
           <div className="mt-3">
             {kuantitasDiKeranjang > 0 ? (
-              <div className="flex items-center justify-center space-x-3 bg-[#0B1329] px-3 py-2 rounded-xl border border-slate-800 w-full">
-                <button onClick={() => kurangKuantitas(keyItemKeranjang)} className="text-rose-400 font-black text-base w-6 h-6 flex items-center justify-center hover:text-rose-300 transition">
-                  -
+              <div className="flex items-center justify-center space-x-3 bg-[#0F0A1A] px-3 py-2 rounded-xl border border-amber-500/20 w-full">
+                <button
+                  onClick={() => kurangKuantitas(keyItemKeranjang)}
+                  className="text-rose-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"
+                >
+                  −
                 </button>
-                <span className="text-sm font-bold text-white min-w-[24px] text-center">{kuantitasDiKeranjang}</span>
+                <span className="text-sm font-bold text-white min-w-[28px] text-center">{kuantitasDiKeranjang}</span>
                 <button
                   onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                  className="text-emerald-400 font-black text-base w-6 h-6 flex items-center justify-center hover:text-emerald-300 transition"
+                  className="text-amber-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition"
                 >
                   +
                 </button>
@@ -102,7 +102,7 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
             ) : (
               <button
                 onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                className="w-full bg-emerald-500 text-[#0B1329] py-2 rounded-xl font-bold text-sm shadow-md hover:bg-emerald-400 transition"
+                className="w-full bg-amber-500 text-[#0F0A1A] py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-amber-400 transition"
               >
                 + Tambah
               </button>

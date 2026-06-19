@@ -8,7 +8,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [formVariasi, setFormVariasi] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Ref untuk track area paste global
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -74,7 +73,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     setFormVariasi(updated);
   };
 
-  // Fungsi paste global: cari variasi pertama yang belum punya gambar
   const handleGlobalPaste = (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -82,8 +80,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf("image") !== -1) {
         e.preventDefault();
-
-        // Cari index variasi pertama yang BELUM punya gambar (gambarPreview null)
         const emptyImageIndex = formVariasi.findIndex((v) => !v.gambarPreview);
 
         if (emptyImageIndex !== -1) {
@@ -96,7 +92,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     }
   };
 
-  // Attach global paste listener ke form container
   useEffect(() => {
     const formElement = formRef.current;
     if (formElement && isOpen) {
@@ -105,7 +100,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
         formElement.removeEventListener("paste", handleGlobalPaste);
       };
     }
-  }, [isOpen, formVariasi]); // Re-attach saat formVariasi berubah
+  }, [isOpen, formVariasi]);
 
   const tambahVariasi = () => {
     setFormVariasi([
@@ -151,12 +146,12 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+    <div className="fixed inset-0 bg-[#0F0A1A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
       <div
         ref={formRef}
-        className="bg-[#1C2541] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-slate-800 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="bg-[#1A1128] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-amber-500/20 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#0B1329] p-1.5 rounded-full">
+        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#0F0A1A] p-1.5 rounded-full">
           ✕
         </button>
 
@@ -172,7 +167,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               type="text"
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              className="w-full bg-[#0B1329] border border-slate-800 rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="w-full bg-[#0F0A1A] border border-amber-500/20 rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
               placeholder="Contoh: Djarum Coklat"
               required
             />
@@ -187,7 +182,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   type="button"
                   onClick={() => setKategori(k)}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                    kategori === k ? "bg-emerald-500 text-[#0B1329] border-emerald-500" : "bg-[#0B1329] text-slate-400 border-slate-800 hover:border-emerald-500/50"
+                    kategori === k ? "bg-amber-500 text-[#0F0A1A] border-amber-500" : "bg-[#0F0A1A] text-slate-400 border-amber-500/20 hover:border-amber-500/50"
                   }`}
                 >
                   {k}
@@ -196,20 +191,20 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-2">
+          <div className="border-t border-amber-500/20 pt-2">
             <div className="flex justify-between items-center mb-3">
               <label className="block text-xs font-bold text-slate-400 uppercase">Tipe / Variasi *</label>
               <button
                 type="button"
                 onClick={tambahVariasi}
-                className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-xl font-bold hover:bg-emerald-500 hover:text-[#0B1329] transition"
+                className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-xl font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition"
               >
                 + Tambah Tipe
               </button>
             </div>
 
             {formVariasi.map((variasi, index) => (
-              <div key={variasi.id} className="bg-[#0B1329] p-3 rounded-xl border border-slate-800 mb-3">
+              <div key={variasi.id} className="bg-[#0F0A1A] p-3 rounded-xl border border-amber-500/20 mb-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
                   {formVariasi.length > 1 && (
@@ -224,7 +219,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     type="text"
                     value={variasi.namaVariasi}
                     onChange={(e) => handleVariasiChange(index, "namaVariasi", e.target.value)}
-                    className="flex-1 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="flex-1 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                     placeholder="Tipe (contoh: Kretek / Extra / Mocca)"
                     required
                   />
@@ -232,7 +227,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     type="text"
                     value={variasi.hargaText}
                     onChange={(e) => handleVariasiChange(index, "hargaText", e.target.value)}
-                    className="w-32 bg-[#1C2541] border border-slate-800 rounded-lg p-2 text-xs text-emerald-400 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-32 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500"
                     placeholder="Rp 0"
                     required
                   />
@@ -240,7 +235,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
                 <div>
                   <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
-                  <div className="bg-[#1C2541] border-2 border-dashed border-slate-800 rounded-xl p-2 text-center cursor-pointer hover:border-emerald-500/40 relative">
+                  <div className="bg-[#1A1128] border-2 border-dashed border-amber-500/20 rounded-xl p-2 text-center cursor-pointer hover:border-amber-500/40 relative">
                     <input
                       type="file"
                       accept="image/*"
@@ -254,11 +249,11 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
                     <p className="text-[10px] text-slate-400">
-                      📷 Klik / <span className="text-emerald-400 font-bold">Ctrl+V</span> paste
+                      📷 Klik / <span className="text-amber-400 font-bold">Ctrl+V</span> paste
                     </p>
                   </div>
                   {variasi.gambarPreview && (
-                    <div className="mt-2 relative w-16 h-16 border border-slate-800 rounded-lg overflow-hidden bg-[#0B1329] mx-auto">
+                    <div className="mt-2 relative w-16 h-16 border border-amber-500/20 rounded-lg overflow-hidden bg-[#0F0A1A] mx-auto">
                       <img src={variasi.gambarPreview} alt="Preview" className="w-full h-full object-cover" />
                       <button type="button" onClick={() => handleGambarChange(index, null, null)} className="absolute top-0 right-0 bg-rose-600 text-white text-[8px] p-0.5 rounded-bl-md">
                         ✕
@@ -270,11 +265,11 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
             ))}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800 mt-4">
-            <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#0B1329] text-slate-300 text-xs sm:text-sm font-semibold rounded-xl">
+          <div className="flex justify-end space-x-2 pt-2 border-t border-amber-500/20 mt-4">
+            <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#0F0A1A] text-slate-300 text-xs sm:text-sm font-semibold rounded-xl">
               Batal
             </button>
-            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-emerald-500 text-[#0B1329] text-xs sm:text-sm font-bold rounded-xl shadow-lg">
+            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-amber-500 text-[#0F0A1A] text-xs sm:text-sm font-bold rounded-xl shadow-lg">
               Simpan
             </button>
           </div>

@@ -117,7 +117,7 @@ function App() {
     });
 
   return (
-    <div className="min-h-screen bg-[#0B1329] text-slate-200 antialiased selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-[#0F0A1A] text-slate-200 antialiased selection:bg-emerald-500 selection:text-white">
       {isLoading && <LoadingOverlay />}
       <ToastNotification message={toastMessage} />
 
@@ -160,7 +160,7 @@ function App() {
             setSelectedProduct(null);
             setIsOpen(true);
           }}
-          className="fixed bottom-5 right-5 bg-emerald-500 text-black w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg hover:bg-emerald-400 transition"
+          className="fixed bottom-5 right-5 bg-amber-500 text-[#0F0A1A] w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg hover:bg-amber-400 transition"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
