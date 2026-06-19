@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export const useCart = () => {
   const [keranjang, setKeranjang] = useState({});
 
+  // Load dari localStorage saat pertama kali mount
   useEffect(() => {
     const stored = localStorage.getItem("keranjang");
     if (stored) {
@@ -10,18 +11,37 @@ export const useCart = () => {
     }
   }, []);
 
+  // Simpan ke localStorage setiap kali keranjang berubah
   useEffect(() => {
     localStorage.setItem("keranjang", JSON.stringify(keranjang));
   }, [keranjang]);
 
-  const tambahKuantitas = (barangId, namaVariasi) => {
-    const key = `${barangId}-${namaVariasi}`;
+  /**
+   * Tambah kuantitas item di keranjang
+   * Bisa dipanggil dengan 2 cara:
+   * 1. tambahKuantitas(barangId, namaVariasi) - dari ProductCard
+   * 2. tambahKuantitas(keyKeranjang) - dari CartItem
+   */
+  const tambahKuantitas = (param1, param2) => {
+    let key;
+    if (param2 !== undefined) {
+      // Dipanggil dengan (barangId, namaVariasi)
+      key = `${param1}-${param2}`;
+    } else {
+      // Dipanggil dengan (keyKeranjang) saja
+      key = param1;
+    }
+
     setKeranjang((prev) => ({
       ...prev,
       [key]: (prev[key] || 0) + 1,
     }));
   };
 
+  /**
+   * Kurangi kuantitas item di keranjang
+   * Jika kuantitas <= 1, hapus item dari keranjang
+   */
   const kurangKuantitas = (keyKeranjang) => {
     setKeranjang((prev) => {
       const current = prev[keyKeranjang] || 0;
@@ -34,10 +54,17 @@ export const useCart = () => {
     });
   };
 
+  /**
+   * Kosongkan seluruh keranjang
+   */
   const clearCart = () => {
     setKeranjang({});
   };
 
+  /**
+   * Hitung total belanja berdasarkan daftar barang
+   * Return: { totalHarga, totalItem, detailProdukTerpilih }
+   */
   const hitungTotalBelanja = (daftarBarang) => {
     let totalHarga = 0;
     let totalItem = 0;

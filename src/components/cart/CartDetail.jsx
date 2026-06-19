@@ -1,7 +1,7 @@
 import React from "react";
 import CartItem from "./CartItem";
 
-const CartDetail = ({ detailProduk, kurangKuantitas, showDetail }) => {
+const CartDetail = ({ detailProduk, kurangKuantitas, tambahKuantitas, showDetail }) => {
   if (!showDetail) return null;
 
   if (detailProduk.length === 0) {
@@ -9,9 +9,9 @@ const CartDetail = ({ detailProduk, kurangKuantitas, showDetail }) => {
   }
 
   return (
-    <div className="max-h-36 overflow-y-auto space-y-2 mb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden animate-fade-in px-1">
+    <div className="max-h-48 overflow-y-auto space-y-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden animate-fade-in px-1">
       {detailProduk.map((item) => (
-        <CartItem key={item.keyKeranjang} item={item} kurangKuantitas={kurangKuantitas} />
+        <CartItem key={item.keyKeranjang} item={item} kurangKuantitas={kurangKuantitas} tambahKuantitas={tambahKuantitas} />
       ))}
     </div>
   );

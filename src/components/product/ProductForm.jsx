@@ -7,6 +7,8 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [kategori, setKategori] = useState("");
   const [formVariasi, setFormVariasi] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [pasteStatus, setPasteStatus] = useState("");
+  const [showPasteUrl, setShowPasteUrl] = useState({}); // Track which index showing URL input
 
   const formRef = useRef(null);
 
@@ -46,6 +48,8 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       },
     ]);
     setIsEditMode(false);
+    setPasteStatus("");
+    setShowPasteUrl({});
   };
 
   const handleClose = () => {
@@ -71,8 +75,39 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     updated[index].gambarPreview = previewUrl;
     updated[index].gambarUrl = previewUrl;
     setFormVariasi(updated);
+    setPasteStatus("");
+    setShowPasteUrl((prev) => ({ ...prev, [index]: false }));
   };
 
+  // Fungsi untuk paste dari URL gambar
+  const handlePasteUrl = (index, url) => {
+    if (!url || url.trim() === "") {
+      setPasteStatus("⚠️ Masukkan URL gambar terlebih dahulu");
+      return;
+    }
+
+    // Validasi URL gambar
+    const imageUrl = url.trim();
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+    const isValidImage =
+      imageExtensions.some((ext) => imageUrl.toLowerCase().includes(ext)) || imageUrl.includes("images") || imageUrl.includes("img") || imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)/i);
+
+    if (!isValidImage) {
+      setPasteStatus("⚠️ URL bukan gambar yang valid. Pastikan URL berakhir dengan .jpg, .png, dll");
+      return;
+    }
+
+    // Set gambar dari URL
+    const updated = [...formVariasi];
+    updated[index].gambarUrl = imageUrl;
+    updated[index].gambarPreview = imageUrl;
+    updated[index].gambarFile = null; // URL tidak punya file
+    setFormVariasi(updated);
+    setPasteStatus(`✅ Gambar berhasil ditempel dari URL ke Tipe ${index + 1}`);
+    setShowPasteUrl((prev) => ({ ...prev, [index]: false }));
+  };
+
+  // Fungsi paste untuk desktop (Ctrl+V)
   const handleGlobalPaste = (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -86,9 +121,72 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           const blob = items[i].getAsFile();
           const previewUrl = URL.createObjectURL(blob);
           handleGambarChange(emptyImageIndex, blob, previewUrl);
+          setPasteStatus(`✅ Gambar berhasil ditempel ke Tipe ${emptyImageIndex + 1}`);
+        } else {
+          setPasteStatus("⚠️ Semua tipe sudah punya gambar");
         }
         break;
       }
+    }
+  };
+
+  // Fungsi paste untuk mobile (menggunakan navigator.clipboard)
+  const handleMobilePaste = async (index) => {
+    try {
+      // Cek apakah browser support clipboard API
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        // Fallback: buka input URL
+        setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
+        setPasteStatus("📋 Browser tidak support paste gambar. Silakan paste URL gambar di bawah.");
+        return;
+      }
+
+      const clipboardItems = await navigator.clipboard.read();
+
+      for (const clipboardItem of clipboardItems) {
+        // Cari tipe image di clipboard
+        const imageTypes = clipboardItem.types.filter((type) => type.startsWith("image/"));
+
+        if (imageTypes.length > 0) {
+          const blob = await clipboardItem.getType(imageTypes[0]);
+          const file = new File([blob], `paste-${Date.now()}.png`, { type: blob.type });
+          const previewUrl = URL.createObjectURL(blob);
+
+          handleGambarChange(index, file, previewUrl);
+          setPasteStatus(`✅ Gambar berhasil ditempel ke Tipe ${index + 1}`);
+          return;
+        }
+      }
+
+      // Jika tidak ada gambar di clipboard, coba cek apakah ada text (URL)
+      for (const clipboardItem of clipboardItems) {
+        if (clipboardItem.types.includes("text/plain")) {
+          const text = await clipboardItem.getType("text/plain");
+          const url = await text.text();
+
+          // Cek apakah text adalah URL gambar
+          if (url && (url.includes("http") || url.includes("https"))) {
+            setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
+            setPasteStatus("📋 URL gambar terdeteksi. Masukkan ke kolom URL di bawah.");
+            return;
+          }
+        }
+      }
+
+      setPasteStatus("❌ Tidak ada gambar atau URL di clipboard. Coba copy gambar terlebih dahulu.");
+    } catch (error) {
+      console.error("Paste error:", error);
+      // Fallback: buka input URL
+      setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
+      setPasteStatus("📋 Gagal paste gambar. Silakan paste URL gambar di bawah.");
+    }
+  };
+
+  // Handler untuk input URL paste
+  const handleUrlInputChange = (index, value) => {
+    // Auto-detect jika user paste URL
+    if (value && (value.includes("http") || value.includes("https"))) {
+      // Bisa langsung proses atau tunggu user klik tombol
     }
   };
 
@@ -115,6 +213,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
         gambarUrl: null,
       },
     ]);
+    setPasteStatus("");
   };
 
   const hapusVariasi = (index) => {
@@ -159,6 +258,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           <h2 className="text-lg font-extrabold text-white">{isEditMode ? "Ubah Produk Warung" : "Tambah Produk Warung"}</h2>
           <p className="text-slate-400 text-xs mt-0.5">Setiap tipe bisa punya gambar sendiri</p>
         </div>
+
+        {/* Status Paste */}
+        {pasteStatus && (
+          <div
+            className={`mb-3 p-2 rounded-xl text-xs font-bold ${
+              pasteStatus.includes("✅") ? "bg-emerald-500/20 text-emerald-400" : pasteStatus.includes("⚠️") ? "bg-amber-500/20 text-amber-400" : "bg-rose-500/20 text-rose-400"
+            }`}
+          >
+            {pasteStatus}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
@@ -235,23 +345,73 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
                 <div>
                   <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
-                  <div className="bg-[#1A1128] border-2 border-dashed border-amber-500/20 rounded-xl p-2 text-center cursor-pointer hover:border-amber-500/40 relative">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const previewUrl = URL.createObjectURL(file);
-                          handleGambarChange(index, file, previewUrl);
-                        }
-                      }}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                    <p className="text-[10px] text-slate-400">
-                      📷 Klik / <span className="text-amber-400 font-bold">Ctrl+V</span> paste
-                    </p>
+
+                  {/* Upload Area dengan tombol Paste untuk HP */}
+                  <div className="flex gap-2 flex-wrap">
+                    <div className="flex-1 min-w-[120px] bg-[#1A1128] border-2 border-dashed border-amber-500/20 rounded-xl p-2 text-center cursor-pointer hover:border-amber-500/40 relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const previewUrl = URL.createObjectURL(file);
+                            handleGambarChange(index, file, previewUrl);
+                          }
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <p className="text-[10px] text-slate-400">📷 Upload</p>
+                    </div>
+
+                    {/* Tombol Paste untuk HP */}
+                    <button
+                      type="button"
+                      onClick={() => handleMobilePaste(index)}
+                      className="px-3 py-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl text-[10px] font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                    >
+                      📋 Paste
+                    </button>
+
+                    {/* Tombol URL untuk paste link gambar */}
+                    <button
+                      type="button"
+                      onClick={() => setShowPasteUrl((prev) => ({ ...prev, [index]: !prev[index] }))}
+                      className="px-3 py-2 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-xl text-[10px] font-bold hover:bg-sky-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                    >
+                      🔗 URL
+                    </button>
                   </div>
+
+                  {/* Input URL untuk paste link gambar */}
+                  {showPasteUrl[index] && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Tempel URL gambar di sini..."
+                        className="flex-1 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        onChange={(e) => handleUrlInputChange(index, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handlePasteUrl(index, e.target.value);
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          const input = e.target.previousSibling;
+                          handlePasteUrl(index, input.value);
+                        }}
+                        className="px-3 py-2 bg-amber-500 text-[#0F0A1A] rounded-lg text-[10px] font-bold hover:bg-amber-400 transition"
+                      >
+                        Tempel
+                      </button>
+                    </div>
+                  )}
+
+                  <p className="text-[9px] text-slate-500 mt-1 text-center">📱 HP: Copy gambar dari web, lalu klik "Paste" atau "URL" untuk tempel link</p>
+
                   {variasi.gambarPreview && (
                     <div className="mt-2 relative w-16 h-16 border border-amber-500/20 rounded-lg overflow-hidden bg-[#0F0A1A] mx-auto">
                       <img src={variasi.gambarPreview} alt="Preview" className="w-full h-full object-cover" />

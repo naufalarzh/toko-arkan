@@ -1,23 +1,23 @@
 import React from "react";
 import CartDetail from "./CartDetail";
 
-const CartFooter = ({ totalItem, totalHarga, detailProduk, kurangKuantitas, onClearCart, onCheckout, showDetail, setShowDetail }) => {
+const CartFooter = ({ totalItem, totalHarga, detailProduk, kurangKuantitas, tambahKuantitas, onClearCart, onCheckout, showDetail, setShowDetail }) => {
   if (totalItem === 0) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#1A1128]/95 border-t border-amber-500/20 shadow-2xl z-40 p-4 max-w-4xl mx-auto rounded-t-3xl backdrop-blur-md">
+      {/* Tombol atas */}
       <div className="mb-2 flex justify-between items-center px-1">
-        <button onClick={() => setShowDetail(!showDetail)} className="text-xs text-slate-400 hover:text-amber-400 font-semibold transition">
-          {showDetail ? "⬇ Sembunyikan Rincian" : "⬆ Lihat Rincian Barang"}
+        <button onClick={() => setShowDetail(!showDetail)} className="text-xs font-semibold transition px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 hover:text-sky-300 hover:bg-sky-500/20">
+          {showDetail ? "🔽 Sembunyikan Rincian" : "🔼 Lihat Rincian Barang"}
         </button>
         <button onClick={onClearCart} className="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 px-2.5 py-1 rounded-md transition">
           🗑️ Kosongkan
         </button>
       </div>
 
-      <CartDetail detailProduk={detailProduk} kurangKuantitas={kurangKuantitas} showDetail={showDetail} />
-
-      <div className="flex items-center justify-between px-1">
+      {/* TOTAL TAGIHAN - DI ATAS */}
+      <div className="flex items-center justify-between px-1 mb-3">
         <div className="flex items-center space-x-2.5">
           <div className="bg-amber-500 text-[#0F0A1A] font-black rounded-lg w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs shadow-md">{totalItem}</div>
           <div>
@@ -29,6 +29,9 @@ const CartFooter = ({ totalItem, totalHarga, detailProduk, kurangKuantitas, onCl
           Selesai
         </button>
       </div>
+
+      {/* RINCIAN PRODUK - DI BAWAH (max 4 item, scroll jika lebih) */}
+      <CartDetail detailProduk={detailProduk} kurangKuantitas={kurangKuantitas} tambahKuantitas={tambahKuantitas} showDetail={showDetail} />
     </div>
   );
 };

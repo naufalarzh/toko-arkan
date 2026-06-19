@@ -22,14 +22,12 @@ function App() {
 
   const { daftarBarang, isLoading, setIsLoading, saveProduct, deleteProduct } = useProducts();
   const { keranjang, tambahKuantitas, kurangKuantitas, clearCart, hitungTotalBelanja } = useCart();
-  const { toastMessage, setToastMessage } = useToast();
+  const { toastMessage, toastType, showToast } = useToast();
 
   const { totalHarga, totalItem, detailProdukTerpilih } = hitungTotalBelanja(daftarBarang);
 
-  // ========== PRELOAD GAMBAR ==========
-  // Letakkan di sini, setelah daftarBarang tersedia
+  // Preload gambar
   useEffect(() => {
-    // Preload semua gambar produk agar tidak delay saat ganti variasi
     daftarBarang.forEach((barang) => {
       if (barang.opsiVariasi) {
         barang.opsiVariasi.forEach((variasi) => {
@@ -40,8 +38,7 @@ function App() {
         });
       }
     });
-  }, [daftarBarang]); // Jalankan setiap kali daftarBarang berubah
-  // ===================================
+  }, [daftarBarang]);
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
@@ -57,7 +54,7 @@ function App() {
       );
 
       if (result.success) {
-        setToastMessage(productData.isEditMode ? "✨ Produk diperbarui!" : "✨ Produk baru ditambahkan!");
+        showToast(productData.isEditMode ? "✨ Produk berhasil diperbarui!" : "✨ Produk baru berhasil ditambahkan!", productData.isEditMode ? "info" : "success");
         setIsOpen(false);
         setSelectedProduct(null);
       } else {
@@ -65,7 +62,7 @@ function App() {
       }
     } catch (error) {
       console.error("Gagal menyimpan:", error);
-      setToastMessage("❌ Terjadi kesalahan: " + error.message);
+      showToast("❌ Gagal menyimpan produk: " + error.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -76,9 +73,9 @@ function App() {
     const result = await deleteProduct(deleteModal.id, barang?.opsiVariasi || []);
 
     if (result.success) {
-      setToastMessage("✨ Produk berhasil dihapus!");
+      showToast("🗑️ Produk berhasil dihapus!", "delete");
     } else {
-      setToastMessage("❌ Gagal menghapus produk!");
+      showToast("❌ Gagal menghapus produk!", "error");
     }
 
     setDeleteModal({ isOpen: false, id: null, name: "" });
@@ -97,12 +94,23 @@ function App() {
   };
 
   const handleCheckout = () => {
-    setToastMessage("✅ Transaksi berhasil diproses!");
+    showToast("✅ Transaksi berhasil diproses!", "checkout");
     clearCart();
     setShowDetail(false);
   };
 
-  // Filter produk: cari di nama produk ATAU nama variasi
+  const handleClearCart = () => {
+    clearCart();
+    setShowDetail(false);
+    showToast("🗑️ Keranjang belanja dikosongkan", "clear");
+  };
+
+  const handleTambahProdukCepat = () => {
+    setSelectedProduct(null);
+    setIsOpen(true);
+  };
+
+  // Filter produk
   const barangDifilter = [...daftarBarang]
     .sort((a, b) => a.nama.localeCompare(b.nama))
     .filter((b) => {
@@ -117,9 +125,9 @@ function App() {
     });
 
   return (
-    <div className="min-h-screen bg-[#0F0A1A] text-slate-200 antialiased selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-[#0F0A1A] text-slate-200 antialiased selection:bg-amber-500 selection:text-white">
       {isLoading && <LoadingOverlay />}
-      <ToastNotification message={toastMessage} />
+      <ToastNotification message={toastMessage} type={toastType} />
 
       <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <KategoriBar kategoriAktif={kategoriAktif} setKategoriAktif={setKategoriAktif} />
@@ -144,11 +152,8 @@ function App() {
         totalHarga={totalHarga}
         detailProduk={detailProdukTerpilih}
         kurangKuantitas={kurangKuantitas}
-        onClearCart={() => {
-          clearCart();
-          setShowDetail(false);
-          setToastMessage("🗑️ Keranjang belanja dikosongkan");
-        }}
+        tambahKuantitas={tambahKuantitas}
+        onClearCart={handleClearCart}
         onCheckout={handleCheckout}
         showDetail={showDetail}
         setShowDetail={setShowDetail}
@@ -156,10 +161,7 @@ function App() {
 
       {totalItem === 0 && (
         <button
-          onClick={() => {
-            setSelectedProduct(null);
-            setIsOpen(true);
-          }}
+          onClick={handleTambahProdukCepat}
           className="fixed bottom-5 right-5 bg-amber-500 text-[#0F0A1A] w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg hover:bg-amber-400 transition"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

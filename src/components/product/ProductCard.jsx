@@ -86,17 +86,17 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
             {kuantitasDiKeranjang > 0 ? (
               <div className="flex items-center justify-center space-x-3 bg-[#0F0A1A] px-3 py-2 rounded-xl border border-amber-500/20 w-full">
                 <button
-                  onClick={() => kurangKuantitas(keyItemKeranjang)}
-                  className="text-rose-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"
-                >
-                  −
-                </button>
-                <span className="text-sm font-bold text-white min-w-[28px] text-center">{kuantitasDiKeranjang}</span>
-                <button
                   onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
                   className="text-amber-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition"
                 >
                   +
+                </button>
+                <span className="text-sm font-bold text-white min-w-[28px] text-center">{kuantitasDiKeranjang}</span>
+                <button
+                  onClick={() => kurangKuantitas(keyItemKeranjang)}
+                  className="text-rose-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition"
+                >
+                  −
                 </button>
               </div>
             ) : (
