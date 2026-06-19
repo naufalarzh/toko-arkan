@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "./components/layout/Navbar";
 import KategoriBar from "./components/layout/KategoriBar";
 import LoadingOverlay from "./components/layout/LoadingOverlay";
@@ -39,6 +39,25 @@ function App() {
       }
     });
   }, [daftarBarang]);
+
+  // ========== SCROLL KE ATAS SAAT KATEGORI BERUBAH ==========
+  useEffect(() => {
+    // Scroll ke atas dengan efek smooth
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [kategoriAktif]); // Jalankan setiap kali kategori berubah
+  // =========================================================
+
+  // ========== SCROLL KE ATAS SAAT SEARCH BERUBAH ==========
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [searchQuery]); // Jalankan setiap kali search berubah
+  // =======================================================
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
