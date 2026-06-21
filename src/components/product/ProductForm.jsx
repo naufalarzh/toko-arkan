@@ -8,9 +8,35 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [formVariasi, setFormVariasi] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [pasteStatus, setPasteStatus] = useState("");
-  const [showPasteUrl, setShowPasteUrl] = useState({}); // Track which index showing URL input
+  const [showPasteUrl, setShowPasteUrl] = useState({});
+  const [dragIndex, setDragIndex] = useState(null); // Untuk drag & drop
 
   const formRef = useRef(null);
+
+  // ========== DRAG & DROP HANDLERS ==========
+  const handleDragStart = (index) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+
+    const updated = [...formVariasi];
+    const [draggedItem] = updated.splice(dragIndex, 1);
+    updated.splice(index, 0, draggedItem);
+    setFormVariasi(updated);
+    setDragIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+  };
+
+  const handleDragLeave = () => {
+    // Optional: reset visual state
+  };
+  // ==========================================
 
   useEffect(() => {
     if (initialData) {
@@ -19,7 +45,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       setKategori(initialData.kategori);
       setFormVariasi(
         initialData.opsiVariasi.map((v, idx) => ({
-          id: idx,
+          id: v.id || Date.now() + idx,
           namaVariasi: v.namaVariasi,
           harga: v.harga,
           hargaText: "Rp " + v.harga.toLocaleString("id-ID"),
@@ -50,6 +76,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     setIsEditMode(false);
     setPasteStatus("");
     setShowPasteUrl({});
+    setDragIndex(null);
   };
 
   const handleClose = () => {
@@ -79,14 +106,12 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     setShowPasteUrl((prev) => ({ ...prev, [index]: false }));
   };
 
-  // Fungsi untuk paste dari URL gambar
   const handlePasteUrl = (index, url) => {
     if (!url || url.trim() === "") {
       setPasteStatus("⚠️ Masukkan URL gambar terlebih dahulu");
       return;
     }
 
-    // Validasi URL gambar
     const imageUrl = url.trim();
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
     const isValidImage =
@@ -97,17 +122,15 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       return;
     }
 
-    // Set gambar dari URL
     const updated = [...formVariasi];
     updated[index].gambarUrl = imageUrl;
     updated[index].gambarPreview = imageUrl;
-    updated[index].gambarFile = null; // URL tidak punya file
+    updated[index].gambarFile = null;
     setFormVariasi(updated);
     setPasteStatus(`✅ Gambar berhasil ditempel dari URL ke Tipe ${index + 1}`);
     setShowPasteUrl((prev) => ({ ...prev, [index]: false }));
   };
 
-  // Fungsi paste untuk desktop (Ctrl+V)
   const handleGlobalPaste = (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -130,12 +153,9 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     }
   };
 
-  // Fungsi paste untuk mobile (menggunakan navigator.clipboard)
   const handleMobilePaste = async (index) => {
     try {
-      // Cek apakah browser support clipboard API
       if (!navigator.clipboard || !navigator.clipboard.read) {
-        // Fallback: buka input URL
         setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
         setPasteStatus("📋 Browser tidak support paste gambar. Silakan paste URL gambar di bawah.");
         return;
@@ -144,7 +164,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       const clipboardItems = await navigator.clipboard.read();
 
       for (const clipboardItem of clipboardItems) {
-        // Cari tipe image di clipboard
         const imageTypes = clipboardItem.types.filter((type) => type.startsWith("image/"));
 
         if (imageTypes.length > 0) {
@@ -158,13 +177,11 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
         }
       }
 
-      // Jika tidak ada gambar di clipboard, coba cek apakah ada text (URL)
       for (const clipboardItem of clipboardItems) {
         if (clipboardItem.types.includes("text/plain")) {
           const text = await clipboardItem.getType("text/plain");
           const url = await text.text();
 
-          // Cek apakah text adalah URL gambar
           if (url && (url.includes("http") || url.includes("https"))) {
             setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
             setPasteStatus("📋 URL gambar terdeteksi. Masukkan ke kolom URL di bawah.");
@@ -176,13 +193,11 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
       setPasteStatus("❌ Tidak ada gambar atau URL di clipboard. Coba copy gambar terlebih dahulu.");
     } catch (error) {
       console.error("Paste error:", error);
-      // Fallback: buka input URL
       setShowPasteUrl((prev) => ({ ...prev, [index]: true }));
       setPasteStatus("📋 Gagal paste gambar. Silakan paste URL gambar di bawah.");
     }
   };
 
-  // Handler untuk input URL paste
   const handleUrlInputChange = (index, value) => {
     // Auto-detect jika user paste URL
     if (value && (value.includes("http") || value.includes("https"))) {
@@ -259,7 +274,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           <p className="text-slate-400 text-xs mt-0.5">Setiap tipe bisa punya gambar sendiri</p>
         </div>
 
-        {/* Status Paste */}
         {pasteStatus && (
           <div
             className={`mb-3 p-2 rounded-xl text-xs font-bold ${
@@ -271,6 +285,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
+          {/* NAMA BARANG */}
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Nama Barang *</label>
             <input
@@ -283,6 +298,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
             />
           </div>
 
+          {/* KATEGORI */}
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Kategori</label>
             <div className="flex flex-wrap gap-2">
@@ -301,24 +317,33 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
             </div>
           </div>
 
+          {/* TIPE / VARIASI */}
           <div className="border-t border-amber-500/20 pt-2">
             <div className="flex justify-between items-center mb-3">
               <label className="block text-xs font-bold text-slate-400 uppercase">Tipe / Variasi *</label>
-              <button
-                type="button"
-                onClick={tambahVariasi}
-                className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-xl font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition"
-              >
-                + Tambah Tipe
-              </button>
+              <span className="text-[10px] text-slate-500">(drag ☰ untuk urutkan)</span>
             </div>
 
             {formVariasi.map((variasi, index) => (
-              <div key={variasi.id} className="bg-[#0F0A1A] p-3 rounded-xl border border-amber-500/20 mb-3">
+              <div
+                key={variasi.id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragLeave={handleDragLeave}
+                className={`bg-[#0F0A1A] p-3 rounded-xl border border-amber-500/20 mb-3 transition-all ${dragIndex === index ? "opacity-50 border-amber-500" : ""}`}
+              >
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
+                  <div className="flex items-center gap-2">
+                    {/* DRAG HANDLE */}
+                    <span className="text-slate-500 cursor-grab text-sm select-none" title="Seret untuk urutkan">
+                      ☰
+                    </span>
+                    <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
+                  </div>
                   {formVariasi.length > 1 && (
-                    <button type="button" onClick={() => hapusVariasi(index)} className="text-rose-500 text-xs">
+                    <button type="button" onClick={() => hapusVariasi(index)} className="text-rose-500 text-xs hover:text-rose-400">
                       ✕ Hapus
                     </button>
                   )}
@@ -346,7 +371,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                 <div>
                   <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
 
-                  {/* Upload Area dengan tombol Paste untuk HP */}
                   <div className="flex gap-2 flex-wrap">
                     <div className="flex-1 min-w-[120px] bg-[#1A1128] border-2 border-dashed border-amber-500/20 rounded-xl p-2 text-center cursor-pointer hover:border-amber-500/40 relative">
                       <input
@@ -364,7 +388,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                       <p className="text-[10px] text-slate-400">📷 Upload</p>
                     </div>
 
-                    {/* Tombol Paste untuk HP */}
                     <button
                       type="button"
                       onClick={() => handleMobilePaste(index)}
@@ -373,7 +396,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                       📋 Paste
                     </button>
 
-                    {/* Tombol URL untuk paste link gambar */}
                     <button
                       type="button"
                       onClick={() => setShowPasteUrl((prev) => ({ ...prev, [index]: !prev[index] }))}
@@ -383,7 +405,6 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     </button>
                   </div>
 
-                  {/* Input URL untuk paste link gambar */}
                   {showPasteUrl[index] && (
                     <div className="mt-2 flex gap-2">
                       <input
@@ -423,8 +444,18 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                 </div>
               </div>
             ))}
+
+            {/* === TOMBOL TAMBAH TIPE PINDAH KE BAWAH === */}
+            <button
+              type="button"
+              onClick={tambahVariasi}
+              className="w-full mt-1 py-2.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold text-xs hover:bg-amber-500 hover:text-[#0F0A1A] transition"
+            >
+              + Tambah Tipe
+            </button>
           </div>
 
+          {/* TOMBOL SUBMIT */}
           <div className="flex justify-end space-x-2 pt-2 border-t border-amber-500/20 mt-4">
             <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#0F0A1A] text-slate-300 text-xs sm:text-sm font-semibold rounded-xl">
               Batal
