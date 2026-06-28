@@ -29,13 +29,13 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
   };
 
   return (
-    <div className="bg-[#1A1128] rounded-2xl overflow-hidden border border-amber-500/20 shadow-lg flex flex-col relative group">
+    <div className="bg-[#1A1128] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col relative group">
       <div className="relative aspect-square bg-[#0F0A1A] overflow-hidden w-full">
         <img src={gambarTampil} alt={barang.nama} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-        <span className="absolute top-2 left-2 bg-[#0F0A1A]/90 text-amber-400 text-[9px] font-bold px-2 py-1 rounded-lg uppercase border border-amber-500/20 z-10">{barang.kategori}</span>
+        <span className="absolute top-2 left-2 bg-[#0F0A1A]/80 text-amber-400 text-[9px] font-bold px-2 py-1 rounded-lg backdrop-blur-sm z-10">{barang.kategori}</span>
 
         <div className="absolute top-2 right-2 z-20" ref={menuRef}>
-          <button onClick={toggleMenu} className="bg-[#0F0A1A]/80 text-white p-1.5 rounded-lg border border-amber-500/20 shadow-md backdrop-blur-sm transition focus:outline-none">
+          <button onClick={toggleMenu} className="bg-[#0F0A1A]/80 text-white p-1.5 rounded-lg shadow-sm backdrop-blur-sm transition focus:outline-none hover:bg-[#0F0A1A]">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -46,7 +46,7 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
             </svg>
           </button>
           {activeMenuId === barang.id && (
-            <div className="absolute right-0 mt-1 w-28 bg-[#0F0A1A] border border-amber-500/20 rounded-xl shadow-xl overflow-hidden py-1 z-10">
+            <div className="absolute right-0 mt-1 w-28 bg-[#0F0A1A] rounded-xl shadow-xl overflow-hidden py-1 z-10">
               <button
                 onClick={() => {
                   onEdit(barang);
@@ -84,7 +84,7 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
 
           <div className="mt-3">
             {kuantitasDiKeranjang > 0 ? (
-              <div className="flex items-center justify-center space-x-3 bg-[#0F0A1A] px-3 py-2 rounded-xl border border-amber-500/20 w-full">
+              <div className="flex items-center justify-center space-x-3 bg-[#0F0A1A] px-3 py-2 rounded-xl w-full">
                 <button
                   onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
                   className="text-amber-400 font-black text-lg w-8 h-8 flex items-center justify-center hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition"
@@ -102,7 +102,7 @@ const ProductCard = ({ barang, keranjang, tambahKuantitas, kurangKuantitas, onEd
             ) : (
               <button
                 onClick={() => tambahKuantitas(barang.id, infoVariasiAktif.namaVariasi)}
-                className="w-full bg-amber-500 text-[#0F0A1A] py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-amber-400 transition"
+                className="w-full bg-amber-500 text-[#0F0A1A] py-2.5 rounded-xl font-bold text-sm hover:bg-amber-400 transition"
               >
                 + Tambah
               </button>

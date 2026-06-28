@@ -9,11 +9,10 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [pasteStatus, setPasteStatus] = useState("");
   const [showPasteUrl, setShowPasteUrl] = useState({});
-  const [dragIndex, setDragIndex] = useState(null); // Untuk drag & drop
+  const [dragIndex, setDragIndex] = useState(null);
 
   const formRef = useRef(null);
 
-  // ========== DRAG & DROP HANDLERS ==========
   const handleDragStart = (index) => {
     setDragIndex(index);
   };
@@ -33,10 +32,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     setDragIndex(null);
   };
 
-  const handleDragLeave = () => {
-    // Optional: reset visual state
-  };
-  // ==========================================
+  const handleDragLeave = () => {};
 
   useEffect(() => {
     if (initialData) {
@@ -198,12 +194,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
     }
   };
 
-  const handleUrlInputChange = (index, value) => {
-    // Auto-detect jika user paste URL
-    if (value && (value.includes("http") || value.includes("https"))) {
-      // Bisa langsung proses atau tunggu user klik tombol
-    }
-  };
+  const handleUrlInputChange = (index, value) => {};
 
   useEffect(() => {
     const formElement = formRef.current;
@@ -261,11 +252,9 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
   return (
     <div className="fixed inset-0 bg-[#0F0A1A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-      <div
-        ref={formRef}
-        className="bg-[#1A1128] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative border border-amber-500/20 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <button onClick={handleClose} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#0F0A1A] p-1.5 rounded-full">
+      <div ref={formRef} className="bg-[#1A1128] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* TOMBOL X - TANPA BACKGROUND */}
+        <button onClick={handleClose} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-full transition-colors text-sm font-bold">
           ✕
         </button>
 
@@ -292,8 +281,8 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               type="text"
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              className="w-full bg-[#0F0A1A] border border-amber-500/20 rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
-              placeholder="Contoh: Djarum Coklat"
+              className="w-full bg-[#0F0A1A] rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-amber-500/30 focus:outline-none"
+              placeholder="Contoh: Indomie"
               required
             />
           </div>
@@ -307,8 +296,8 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   key={k}
                   type="button"
                   onClick={() => setKategori(k)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                    kategori === k ? "bg-amber-500 text-[#0F0A1A] border-amber-500" : "bg-[#0F0A1A] text-slate-400 border-amber-500/20 hover:border-amber-500/50"
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                    kategori === k ? "bg-amber-500 text-[#0F0A1A]" : "bg-[#0F0A1A] text-slate-400 hover:bg-[#1A1128] hover:text-white"
                   }`}
                 >
                   {k}
@@ -318,10 +307,9 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           </div>
 
           {/* TIPE / VARIASI */}
-          <div className="border-t border-amber-500/20 pt-2">
+          <div className="pt-2">
             <div className="flex justify-between items-center mb-3">
               <label className="block text-xs font-bold text-slate-400 uppercase">Tipe / Variasi *</label>
-              <span className="text-[10px] text-slate-500">(drag ☰ untuk urutkan)</span>
             </div>
 
             {formVariasi.map((variasi, index) => (
@@ -332,14 +320,11 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
                 onDragLeave={handleDragLeave}
-                className={`bg-[#0F0A1A] p-3 rounded-xl border border-amber-500/20 mb-3 transition-all ${dragIndex === index ? "opacity-50 border-amber-500" : ""}`}
+                className={`bg-[#0F0A1A] p-3 rounded-xl mb-3 transition-all shadow-sm ${dragIndex === index ? "opacity-50" : ""}`}
               >
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    {/* DRAG HANDLE */}
-                    <span className="text-slate-500 cursor-grab text-sm select-none" title="Seret untuk urutkan">
-                      ☰
-                    </span>
+                    <span className="text-slate-500 cursor-grab text-sm select-none">☰</span>
                     <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
                   </div>
                   {formVariasi.length > 1 && (
@@ -354,15 +339,15 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     type="text"
                     value={variasi.namaVariasi}
                     onChange={(e) => handleVariasiChange(index, "namaVariasi", e.target.value)}
-                    className="flex-1 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    placeholder="Tipe (contoh: Kretek / Extra / Mocca)"
+                    className="flex-1 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    placeholder="Tipe (contoh: Pcs / Pack / Liter)"
                     required
                   />
                   <input
                     type="text"
                     value={variasi.hargaText}
                     onChange={(e) => handleVariasiChange(index, "hargaText", e.target.value)}
-                    className="w-32 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-32 bg-[#1A1128] rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                     placeholder="Rp 0"
                     required
                   />
@@ -372,7 +357,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
 
                   <div className="flex gap-2 flex-wrap">
-                    <div className="flex-1 min-w-[120px] bg-[#1A1128] border-2 border-dashed border-amber-500/20 rounded-xl p-2 text-center cursor-pointer hover:border-amber-500/40 relative">
+                    <div className="flex-1 min-w-[120px] bg-[#1A1128] rounded-xl p-2 text-center cursor-pointer hover:bg-[#1A1128]/80 relative">
                       <input
                         type="file"
                         accept="image/*"
@@ -391,7 +376,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     <button
                       type="button"
                       onClick={() => handleMobilePaste(index)}
-                      className="px-3 py-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl text-[10px] font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                      className="px-3 py-2 bg-amber-500/10 text-amber-400 rounded-xl text-[10px] font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
                     >
                       📋 Paste
                     </button>
@@ -399,7 +384,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     <button
                       type="button"
                       onClick={() => setShowPasteUrl((prev) => ({ ...prev, [index]: !prev[index] }))}
-                      className="px-3 py-2 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-xl text-[10px] font-bold hover:bg-sky-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                      className="px-3 py-2 bg-sky-500/10 text-sky-400 rounded-xl text-[10px] font-bold hover:bg-sky-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
                     >
                       🔗 URL
                     </button>
@@ -410,7 +395,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                       <input
                         type="text"
                         placeholder="Tempel URL gambar di sini..."
-                        className="flex-1 bg-[#1A1128] border border-amber-500/20 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        className="flex-1 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                         onChange={(e) => handleUrlInputChange(index, e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
@@ -434,7 +419,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   <p className="text-[9px] text-slate-500 mt-1 text-center">📱 HP: Copy gambar dari web, lalu klik "Paste" atau "URL" untuk tempel link</p>
 
                   {variasi.gambarPreview && (
-                    <div className="mt-2 relative w-16 h-16 border border-amber-500/20 rounded-lg overflow-hidden bg-[#0F0A1A] mx-auto">
+                    <div className="mt-2 relative w-16 h-16 rounded-lg overflow-hidden bg-[#0F0A1A] mx-auto shadow-sm">
                       <img src={variasi.gambarPreview} alt="Preview" className="w-full h-full object-cover" />
                       <button type="button" onClick={() => handleGambarChange(index, null, null)} className="absolute top-0 right-0 bg-rose-600 text-white text-[8px] p-0.5 rounded-bl-md">
                         ✕
@@ -445,22 +430,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               </div>
             ))}
 
-            {/* === TOMBOL TAMBAH TIPE PINDAH KE BAWAH === */}
-            <button
-              type="button"
-              onClick={tambahVariasi}
-              className="w-full mt-1 py-2.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold text-xs hover:bg-amber-500 hover:text-[#0F0A1A] transition"
-            >
+            <button type="button" onClick={tambahVariasi} className="w-full mt-1 py-2.5 bg-amber-500/10 text-amber-400 rounded-xl font-bold text-xs hover:bg-amber-500 hover:text-[#0F0A1A] transition">
               + Tambah Tipe
             </button>
           </div>
 
           {/* TOMBOL SUBMIT */}
-          <div className="flex justify-end space-x-2 pt-2 border-t border-amber-500/20 mt-4">
+          <div className="flex justify-end space-x-2 pt-2 mt-4">
             <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#0F0A1A] text-slate-300 text-xs sm:text-sm font-semibold rounded-xl">
               Batal
             </button>
-            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-amber-500 text-[#0F0A1A] text-xs sm:text-sm font-bold rounded-xl shadow-lg">
+            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-amber-500 text-[#0F0A1A] text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:bg-amber-400 transition">
               Simpan
             </button>
           </div>

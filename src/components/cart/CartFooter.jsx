@@ -5,10 +5,12 @@ const CartFooter = ({ totalItem, totalHarga, detailProduk, kurangKuantitas, tamb
   if (totalItem === 0) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1128]/95 border-t border-amber-500/20 shadow-2xl z-40 p-4 max-w-4xl mx-auto rounded-t-3xl backdrop-blur-md">
-      {/* Tombol atas */}
+    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1128]/95 shadow-xl z-40 p-4 max-w-4xl mx-auto rounded-t-3xl backdrop-blur-md">
       <div className="mb-2 flex justify-between items-center px-1">
-        <button onClick={() => setShowDetail(!showDetail)} className="text-xs font-semibold transition px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 hover:text-sky-300 hover:bg-sky-500/20">
+        <button
+          onClick={() => setShowDetail(!showDetail)}
+          className="text-xs font-semibold transition px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
+        >
           {showDetail ? "🔽 Sembunyikan Rincian" : "🔼 Lihat Rincian Barang"}
         </button>
         <button onClick={onClearCart} className="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 px-2.5 py-1 rounded-md transition">
@@ -16,21 +18,19 @@ const CartFooter = ({ totalItem, totalHarga, detailProduk, kurangKuantitas, tamb
         </button>
       </div>
 
-      {/* TOTAL TAGIHAN - DI ATAS */}
       <div className="flex items-center justify-between px-1 mb-3">
         <div className="flex items-center space-x-2.5">
-          <div className="bg-amber-500 text-[#0F0A1A] font-black rounded-lg w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs shadow-md">{totalItem}</div>
+          <div className="bg-amber-500 text-[#0F0A1A] font-black rounded-lg w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-xs shadow-sm">{totalItem}</div>
           <div>
             <p className="text-[10px] sm:text-xs text-slate-400 font-medium">Total Tagihan</p>
             <p className="text-base sm:text-lg font-black text-amber-400">Rp {totalHarga.toLocaleString("id-ID")}</p>
           </div>
         </div>
-        <button onClick={onCheckout} className="bg-amber-500 text-[#0F0A1A] px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs shadow-lg transition hover:bg-amber-400">
+        <button onClick={onCheckout} className="bg-amber-500 text-[#0F0A1A] px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-amber-400 transition">
           Selesai
         </button>
       </div>
 
-      {/* RINCIAN PRODUK - DI BAWAH (max 4 item, scroll jika lebih) */}
       <CartDetail detailProduk={detailProduk} kurangKuantitas={kurangKuantitas} tambahKuantitas={tambahKuantitas} showDetail={showDetail} />
     </div>
   );

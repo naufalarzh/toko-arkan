@@ -2,7 +2,7 @@ import React from "react";
 
 const Navbar = ({ searchQuery, setSearchQuery }) => {
   return (
-    <div className="sticky top-0 z-30 bg-[#1A1128]/80 backdrop-blur-md border-b border-amber-500/20 shadow-lg">
+    <div className="sticky top-0 z-30 bg-[#1A1128]/90 backdrop-blur-md shadow-md">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="bg-amber-500 p-2 rounded-xl text-[#0F0A1A]">
@@ -19,7 +19,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
             placeholder="Cari barang...."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#0F0A1A] text-xs sm:text-sm text-slate-200 pl-9 pr-3 py-1.5 sm:py-2 rounded-xl border border-amber-500/20 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 placeholder-slate-500 transition-all"
+            className="w-full bg-[#0F0A1A] text-xs sm:text-sm text-slate-200 pl-9 pr-3 py-1.5 sm:py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder-slate-500 transition-all"
           />
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
