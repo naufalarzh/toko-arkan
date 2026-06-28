@@ -334,20 +334,21 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   )}
                 </div>
 
+                {/* TETAP HORIZONTAL - dengan ukuran yang pas */}
                 <div className="flex space-x-2 mb-2">
                   <input
                     type="text"
                     value={variasi.namaVariasi}
                     onChange={(e) => handleVariasiChange(index, "namaVariasi", e.target.value)}
-                    className="flex-1 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
-                    placeholder="Tipe (contoh: Pcs / Pack / Liter)"
+                    className="flex-1 min-w-0 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    placeholder="Tipe"
                     required
                   />
                   <input
                     type="text"
                     value={variasi.hargaText}
                     onChange={(e) => handleVariasiChange(index, "hargaText", e.target.value)}
-                    className="w-32 bg-[#1A1128] rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-24 sm:w-28 flex-shrink-0 bg-[#1A1128] rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                     placeholder="Rp 0"
                     required
                   />
