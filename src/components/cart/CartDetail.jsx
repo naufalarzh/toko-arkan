@@ -5,7 +5,7 @@ const CartDetail = ({ detailProduk, kurangKuantitas, tambahKuantitas, showDetail
   if (!showDetail) return null;
 
   if (detailProduk.length === 0) {
-    return <div className="text-center py-3 text-slate-400 text-xs">Keranjang kosong</div>;
+    return <div className="text-center py-3 text-[#5F6368] text-xs">Keranjang kosong</div>;
   }
 
   return (

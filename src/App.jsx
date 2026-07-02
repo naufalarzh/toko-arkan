@@ -40,26 +40,19 @@ function App() {
     });
   }, [daftarBarang]);
 
-  // ========== SCROLL KE ATAS SAAT KATEGORI BERUBAH ==========
+  // Scroll ke atas saat kategori berubah
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [kategoriAktif]);
 
-  // ========== SCROLL KE ATAS SAAT SEARCH BERUBAH ==========
+  // Scroll ke atas saat search berubah
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchQuery]);
 
-  // ========== AUTO-SELECT VARIASI BERDASARKAN SEARCH ==========
+  // Auto-select variasi berdasarkan search
   useEffect(() => {
     if (!searchQuery.trim()) {
-      // Reset semua variasi ke index 0 saat search kosong
       const resetVariasi = {};
       daftarBarang.forEach((barang) => {
         resetVariasi[barang.id] = 0;
@@ -77,32 +70,24 @@ function App() {
       const namaProdukLower = barang.nama.toLowerCase();
       const namaVariasiList = barang.opsiVariasi.map((v) => v.namaVariasi.toLowerCase());
 
-      // Strategi 1: Cari variasi yang cocok dengan seluruh query
       let foundIndex = -1;
       foundIndex = namaVariasiList.findIndex((v) => v.includes(searchLower));
 
-      // Strategi 2: Jika tidak ketemu dan query terdiri dari 2+ kata,
-      // cari variasi yang mengandung SEMUA kata tersebut
       if (foundIndex === -1 && kataPisah.length > 1) {
         foundIndex = namaVariasiList.findIndex((v) => {
           return kataPisah.every((kata) => v.includes(kata));
         });
       }
 
-      // Strategi 3: Jika masih tidak ketemu, cek apakah nama produk cocok
-      // dengan seluruh query atau semua kata
       if (foundIndex === -1) {
         const namaCocok = namaProdukLower.includes(searchLower) || (kataPisah.length > 1 && kataPisah.every((kata) => namaProdukLower.includes(kata)));
 
         if (namaCocok) {
-          // Jika nama produk cocok, pilih variasi pertama yang cocok dengan query
-          // atau variasi pertama (index 0)
           const firstMatch = namaVariasiList.findIndex((v) => kataPisah.some((kata) => v.includes(kata)));
           foundIndex = firstMatch !== -1 ? firstMatch : 0;
         }
       }
 
-      // Strategi 4: Jika query cocok dengan kombinasi nama + tipe
       if (foundIndex === -1) {
         foundIndex = namaVariasiList.findIndex((v) => {
           const kombinasi = `${namaProdukLower} ${v}`;
@@ -118,7 +103,6 @@ function App() {
       }
     });
   }, [searchQuery, daftarBarang]);
-  // =============================================================
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
@@ -194,7 +178,7 @@ function App() {
     setIsOpen(true);
   };
 
-  // ========== FILTER PRODUK (DENGAN SEARCH FULL NAMA + TIPE) ==========
+  // Filter produk
   const barangDifilter = [...daftarBarang]
     .sort((a, b) => a.nama.localeCompare(b.nama))
     .filter((b) => {
@@ -206,17 +190,11 @@ function App() {
       const namaProdukLower = b.nama.toLowerCase();
       const namaVariasiList = b.opsiVariasi?.map((v) => v.namaVariasi.toLowerCase()) || [];
 
-      // Cek apakah query ada di nama produk
       const cocokNamaProduk = namaProdukLower.includes(searchLower);
-
-      // Cek apakah query ada di salah satu variasi
       const cocokNamaVariasi = namaVariasiList.some((v) => v.includes(searchLower));
-
-      // Cek kombinasi nama + tipe (contoh: "neslite max")
       const kombinasiNamaTipe = namaVariasiList.map((v) => `${namaProdukLower} ${v}`);
       const cocokKombinasi = kombinasiNamaTipe.some((kombinasi) => kombinasi.includes(searchLower));
 
-      // Cek jika query terdiri dari 2+ kata, apakah SEMUA kata ada (di nama atau variasi)
       const kataPisah = searchLower.split(" ").filter((kata) => kata.length > 0);
       let cocokSemuaKata = false;
       if (kataPisah.length > 1) {
@@ -229,10 +207,9 @@ function App() {
 
       return cocokKategori && cocokPencarian;
     });
-  // =====================================================================
 
   return (
-    <div className="min-h-screen bg-[#0F0A1A] text-slate-200 antialiased selection:bg-amber-500 selection:text-white">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#202124] antialiased selection:bg-[#1A73E8] selection:text-white">
       {isLoading && <LoadingOverlay />}
       <ToastNotification message={toastMessage} type={toastType} />
 
@@ -269,7 +246,7 @@ function App() {
       {totalItem === 0 && (
         <button
           onClick={handleTambahProdukCepat}
-          className="fixed bottom-5 right-5 bg-amber-500 text-[#0F0A1A] w-12 h-12 rounded-2xl flex items-center justify-center z-40 shadow-lg hover:bg-amber-400 transition"
+          className="fixed bottom-5 right-5 bg-[#1A73E8] text-white w-12 h-12 rounded-full flex items-center justify-center z-40 shadow-lg hover:bg-[#1557B0] transition"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

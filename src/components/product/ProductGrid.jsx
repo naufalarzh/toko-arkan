@@ -4,8 +4,8 @@ import ProductCard from "./ProductCard";
 const ProductGrid = ({ products, keranjang, tambahKuantitas, kurangKuantitas, onEdit, onDelete, variasiTerpilih, setVariasiTerpilih }) => {
   if (products.length === 0) {
     return (
-      <div className="text-center py-20 bg-[#1C2541]/40 rounded-3xl border border-dashed border-slate-800">
-        <p className="text-slate-400 text-sm font-semibold">Barang tidak ditemukan atau database kosong 🔍</p>
+      <div className="text-center py-20 bg-slate-200 rounded-3xl border border-dashed border-slate-800">
+        <p className="text-black text-sm font-semibold">Barang tidak ditemukan atau database kosong 🔍</p>
       </div>
     );
   }

@@ -6,27 +6,27 @@ const ToastNotification = ({ message, type = "success" }) => {
   const getColorStyles = () => {
     switch (type) {
       case "success":
-        return "bg-amber-500 text-[#0F0A1A]";
+        return "bg-[#34A853] text-white";
       case "error":
-        return "bg-rose-500 text-white";
+        return "bg-[#D93025] text-white";
       case "info":
-        return "bg-sky-500 text-white";
+        return "bg-[#1A73E8] text-white";
       case "warning":
-        return "bg-orange-500 text-[#0F0A1A]";
+        return "bg-[#F9AB00] text-[#202124]";
       case "delete":
-        return "bg-rose-600 text-white";
+        return "bg-[#D93025] text-white";
       case "clear":
-        return "bg-red-500 text-white";
+        return "bg-[#D93025] text-white";
       case "checkout":
-        return "bg-emerald-500 text-[#0F0A1A]";
+        return "bg-[#34A853] text-white";
       default:
-        return "bg-amber-500 text-[#0F0A1A]";
+        return "bg-[#34A853] text-white";
     }
   };
 
   return (
     <div
-      className={`fixed top-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 px-6 py-3 rounded-xl font-bold text-center text-xs sm:text-sm shadow-2xl z-[999] transition-all duration-300 ${getColorStyles()}`}
+      className={`fixed top-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 px-6 py-3 rounded-xl font-bold text-center text-xs sm:text-sm shadow-lg z-[999] transition-all duration-300 ${getColorStyles()}`}
     >
       {message}
     </div>

@@ -13,25 +13,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
   const formRef = useRef(null);
 
-  const handleDragStart = (index) => {
-    setDragIndex(index);
-  };
-
+  const handleDragStart = (index) => setDragIndex(index);
   const handleDragOver = (e, index) => {
     e.preventDefault();
     if (dragIndex === null || dragIndex === index) return;
-
     const updated = [...formVariasi];
     const [draggedItem] = updated.splice(dragIndex, 1);
     updated.splice(index, 0, draggedItem);
     setFormVariasi(updated);
     setDragIndex(index);
   };
-
-  const handleDragEnd = () => {
-    setDragIndex(null);
-  };
-
+  const handleDragEnd = () => setDragIndex(null);
   const handleDragLeave = () => {};
 
   useEffect(() => {
@@ -58,17 +50,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   const resetForm = () => {
     setNama("");
     setKategori("");
-    setFormVariasi([
-      {
-        id: Date.now(),
-        namaVariasi: "",
-        harga: 0,
-        hargaText: "",
-        gambarPreview: null,
-        gambarFile: null,
-        gambarUrl: null,
-      },
-    ]);
+    setFormVariasi([{ id: Date.now(), namaVariasi: "", harga: 0, hargaText: "", gambarPreview: null, gambarFile: null, gambarUrl: null }]);
     setIsEditMode(false);
     setPasteStatus("");
     setShowPasteUrl({});
@@ -207,18 +189,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   }, [isOpen, formVariasi]);
 
   const tambahVariasi = () => {
-    setFormVariasi([
-      ...formVariasi,
-      {
-        id: Date.now(),
-        namaVariasi: "",
-        harga: 0,
-        hargaText: "",
-        gambarPreview: null,
-        gambarFile: null,
-        gambarUrl: null,
-      },
-    ]);
+    setFormVariasi([...formVariasi, { id: Date.now(), namaVariasi: "", harga: 0, hargaText: "", gambarPreview: null, gambarFile: null, gambarUrl: null }]);
     setPasteStatus("");
   };
 
@@ -251,22 +222,24 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#0F0A1A]/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-      <div ref={formRef} className="bg-[#1A1128] rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/* TOMBOL X - TANPA BACKGROUND */}
-        <button onClick={handleClose} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-full transition-colors text-sm font-bold">
+    <div className="fixed inset-0 bg-[#202124]/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+      <div
+        ref={formRef}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 relative [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border border-[#DADCE0]"
+      >
+        <button onClick={handleClose} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-[#5F6368] hover:text-[#202124] rounded-full transition-colors text-sm font-bold">
           ✕
         </button>
 
         <div className="mb-4">
-          <h2 className="text-lg font-extrabold text-white">{isEditMode ? "Ubah Produk Warung" : "Tambah Produk Warung"}</h2>
-          <p className="text-slate-400 text-xs mt-0.5">Setiap tipe bisa punya gambar sendiri</p>
+          <h2 className="text-lg font-extrabold text-[#202124]">{isEditMode ? "Ubah Produk Warung" : "Tambah Produk Warung"}</h2>
+          <p className="text-[#5F6368] text-xs mt-0.5">Setiap tipe bisa punya gambar sendiri</p>
         </div>
 
         {pasteStatus && (
           <div
             className={`mb-3 p-2 rounded-xl text-xs font-bold ${
-              pasteStatus.includes("✅") ? "bg-emerald-500/20 text-emerald-400" : pasteStatus.includes("⚠️") ? "bg-amber-500/20 text-amber-400" : "bg-rose-500/20 text-rose-400"
+              pasteStatus.includes("✅") ? "bg-[#34A853]/20 text-[#34A853]" : pasteStatus.includes("⚠️") ? "bg-[#F9AB00]/20 text-[#F9AB00]" : "bg-[#D93025]/20 text-[#D93025]"
             }`}
           >
             {pasteStatus}
@@ -276,12 +249,12 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* NAMA BARANG */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Nama Barang *</label>
+            <label className="block text-xs font-bold text-[#5F6368] uppercase mb-1">Nama Barang *</label>
             <input
               type="text"
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              className="w-full bg-[#0F0A1A] rounded-xl p-2.5 text-xs sm:text-sm text-white focus:ring-2 focus:ring-amber-500/30 focus:outline-none"
+              className="w-full bg-[#F1F3F4] rounded-xl p-2.5 text-xs sm:text-sm text-[#202124] focus:ring-2 focus:ring-[#1A73E8]/30 focus:outline-none"
               placeholder="Contoh: Indomie"
               required
             />
@@ -289,7 +262,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
 
           {/* KATEGORI */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Kategori</label>
+            <label className="block text-xs font-bold text-[#5F6368] uppercase mb-2">Kategori</label>
             <div className="flex flex-wrap gap-2">
               {LIST_KATEGORI.slice(1).map((k) => (
                 <button
@@ -297,7 +270,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                   type="button"
                   onClick={() => setKategori(k)}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    kategori === k ? "bg-amber-500 text-[#0F0A1A]" : "bg-[#0F0A1A] text-slate-400 hover:bg-[#1A1128] hover:text-white"
+                    kategori === k ? "bg-[#1A73E8] text-white" : "bg-[#F1F3F4] text-[#5F6368] hover:bg-[#E8EAED] hover:text-[#202124]"
                   }`}
                 >
                   {k}
@@ -309,7 +282,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
           {/* TIPE / VARIASI */}
           <div className="pt-2">
             <div className="flex justify-between items-center mb-3">
-              <label className="block text-xs font-bold text-slate-400 uppercase">Tipe / Variasi *</label>
+              <label className="block text-xs font-bold text-[#5F6368] uppercase">Tipe / Variasi *</label>
             </div>
 
             {formVariasi.map((variasi, index) => (
@@ -320,27 +293,26 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
                 onDragLeave={handleDragLeave}
-                className={`bg-[#0F0A1A] p-3 rounded-xl mb-3 transition-all shadow-sm ${dragIndex === index ? "opacity-50" : ""}`}
+                className={`bg-[#F8F9FA] p-3 rounded-xl mb-3 transition-all shadow-sm border border-[#DADCE0] ${dragIndex === index ? "opacity-50" : ""}`}
               >
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 cursor-grab text-sm select-none">☰</span>
-                    <span className="text-[10px] text-slate-400">Tipe {index + 1}</span>
+                    <span className="text-[#9AA0A6] cursor-grab text-sm select-none">☰</span>
+                    <span className="text-[10px] text-[#5F6368]">Tipe {index + 1}</span>
                   </div>
                   {formVariasi.length > 1 && (
-                    <button type="button" onClick={() => hapusVariasi(index)} className="text-rose-500 text-xs hover:text-rose-400">
+                    <button type="button" onClick={() => hapusVariasi(index)} className="text-[#D93025] text-xs hover:text-[#B3261E]">
                       ✕ Hapus
                     </button>
                   )}
                 </div>
 
-                {/* TETAP HORIZONTAL - dengan ukuran yang pas */}
                 <div className="flex space-x-2 mb-2">
                   <input
                     type="text"
                     value={variasi.namaVariasi}
                     onChange={(e) => handleVariasiChange(index, "namaVariasi", e.target.value)}
-                    className="flex-1 min-w-0 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="flex-1 min-w-0 bg-white rounded-lg p-2 text-xs text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1A73E8]/30 border border-[#DADCE0]"
                     placeholder="Tipe"
                     required
                   />
@@ -348,17 +320,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     type="text"
                     value={variasi.hargaText}
                     onChange={(e) => handleVariasiChange(index, "hargaText", e.target.value)}
-                    className="w-24 sm:w-28 flex-shrink-0 bg-[#1A1128] rounded-lg p-2 text-xs text-amber-400 font-bold focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-24 sm:w-28 flex-shrink-0 bg-white rounded-lg p-2 text-xs text-[#1A73E8] font-bold focus:outline-none focus:ring-1 focus:ring-[#1A73E8]/30 border border-[#DADCE0]"
                     placeholder="Rp 0"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-1">Gambar untuk tipe ini</label>
+                  <label className="block text-[10px] text-[#5F6368] mb-1">Gambar untuk tipe ini</label>
 
                   <div className="flex gap-2 flex-wrap">
-                    <div className="flex-1 min-w-[120px] bg-[#1A1128] rounded-xl p-2 text-center cursor-pointer hover:bg-[#1A1128]/80 relative">
+                    <div className="flex-1 min-w-[120px] bg-white rounded-xl p-2 text-center cursor-pointer hover:bg-[#F8F9FA] relative border border-[#DADCE0]">
                       <input
                         type="file"
                         accept="image/*"
@@ -371,13 +343,13 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                         }}
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
-                      <p className="text-[10px] text-slate-400">📷 Upload</p>
+                      <p className="text-[10px] text-[#5F6368]">📷 Upload</p>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => handleMobilePaste(index)}
-                      className="px-3 py-2 bg-amber-500/10 text-amber-400 rounded-xl text-[10px] font-bold hover:bg-amber-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                      className="px-3 py-2 bg-[#1A73E8]/10 text-[#1A73E8] rounded-xl text-[10px] font-bold hover:bg-[#1A73E8] hover:text-white transition whitespace-nowrap"
                     >
                       📋 Paste
                     </button>
@@ -385,7 +357,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                     <button
                       type="button"
                       onClick={() => setShowPasteUrl((prev) => ({ ...prev, [index]: !prev[index] }))}
-                      className="px-3 py-2 bg-sky-500/10 text-sky-400 rounded-xl text-[10px] font-bold hover:bg-sky-500 hover:text-[#0F0A1A] transition whitespace-nowrap"
+                      className="px-3 py-2 bg-[#1A73E8]/10 text-[#1A73E8] rounded-xl text-[10px] font-bold hover:bg-[#1A73E8] hover:text-white transition whitespace-nowrap"
                     >
                       🔗 URL
                     </button>
@@ -396,7 +368,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                       <input
                         type="text"
                         placeholder="Tempel URL gambar di sini..."
-                        className="flex-1 bg-[#1A1128] rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                        className="flex-1 bg-white rounded-lg p-2 text-xs text-[#202124] focus:outline-none focus:ring-1 focus:ring-[#1A73E8]/30 border border-[#DADCE0]"
                         onChange={(e) => handleUrlInputChange(index, e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
@@ -410,19 +382,19 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
                           const input = e.target.previousSibling;
                           handlePasteUrl(index, input.value);
                         }}
-                        className="px-3 py-2 bg-amber-500 text-[#0F0A1A] rounded-lg text-[10px] font-bold hover:bg-amber-400 transition"
+                        className="px-3 py-2 bg-[#1A73E8] text-white rounded-lg text-[10px] font-bold hover:bg-[#1557B0] transition"
                       >
                         Tempel
                       </button>
                     </div>
                   )}
 
-                  <p className="text-[9px] text-slate-500 mt-1 text-center">📱 HP: Copy gambar dari web, lalu klik "Paste" atau "URL" untuk tempel link</p>
+                  <p className="text-[9px] text-[#9AA0A6] mt-1 text-center">📱 HP: Copy gambar dari web, lalu klik "Paste" atau "URL" untuk tempel link</p>
 
                   {variasi.gambarPreview && (
-                    <div className="mt-2 relative w-16 h-16 rounded-lg overflow-hidden bg-[#0F0A1A] mx-auto shadow-sm">
+                    <div className="mt-2 relative w-16 h-16 rounded-lg overflow-hidden bg-[#F8F9FA] mx-auto shadow-sm border border-[#DADCE0]">
                       <img src={variasi.gambarPreview} alt="Preview" className="w-full h-full object-cover" />
-                      <button type="button" onClick={() => handleGambarChange(index, null, null)} className="absolute top-0 right-0 bg-rose-600 text-white text-[8px] p-0.5 rounded-bl-md">
+                      <button type="button" onClick={() => handleGambarChange(index, null, null)} className="absolute top-0 right-0 bg-[#D93025] text-white text-[8px] p-0.5 rounded-bl-md">
                         ✕
                       </button>
                     </div>
@@ -431,17 +403,17 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, isLoading }) => {
               </div>
             ))}
 
-            <button type="button" onClick={tambahVariasi} className="w-full mt-1 py-2.5 bg-amber-500/10 text-amber-400 rounded-xl font-bold text-xs hover:bg-amber-500 hover:text-[#0F0A1A] transition">
+            <button type="button" onClick={tambahVariasi} className="w-full mt-1 py-2.5 bg-[#1A73E8]/10 text-[#1A73E8] rounded-xl font-bold text-xs hover:bg-[#1A73E8] hover:text-white transition">
               + Tambah Tipe
             </button>
           </div>
 
           {/* TOMBOL SUBMIT */}
           <div className="flex justify-end space-x-2 pt-2 mt-4">
-            <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#0F0A1A] text-slate-300 text-xs sm:text-sm font-semibold rounded-xl">
+            <button type="button" onClick={handleClose} className="px-4 py-2 bg-[#F1F3F4] text-[#5F6368] text-xs sm:text-sm font-semibold rounded-xl hover:bg-[#E8EAED] transition">
               Batal
             </button>
-            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-amber-500 text-[#0F0A1A] text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:bg-amber-400 transition">
+            <button type="submit" disabled={isLoading} className="px-5 py-2 bg-[#1A73E8] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:bg-[#1557B0] transition">
               Simpan
             </button>
           </div>
