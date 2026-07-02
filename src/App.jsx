@@ -42,13 +42,11 @@ function App() {
 
   // ========== SCROLL KE ATAS SAAT KATEGORI BERUBAH ==========
   useEffect(() => {
-    // Scroll ke atas dengan efek smooth
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  }, [kategoriAktif]); // Jalankan setiap kali kategori berubah
-  // =========================================================
+  }, [kategoriAktif]);
 
   // ========== SCROLL KE ATAS SAAT SEARCH BERUBAH ==========
   useEffect(() => {
@@ -56,8 +54,71 @@ function App() {
       top: 0,
       behavior: "smooth",
     });
-  }, [searchQuery]); // Jalankan setiap kali search berubah
-  // =======================================================
+  }, [searchQuery]);
+
+  // ========== AUTO-SELECT VARIASI BERDASARKAN SEARCH ==========
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      // Reset semua variasi ke index 0 saat search kosong
+      const resetVariasi = {};
+      daftarBarang.forEach((barang) => {
+        resetVariasi[barang.id] = 0;
+      });
+      setVariasiTerpilih(resetVariasi);
+      return;
+    }
+
+    const searchLower = searchQuery.toLowerCase().trim();
+    const kataPisah = searchLower.split(" ").filter((kata) => kata.length > 0);
+
+    daftarBarang.forEach((barang) => {
+      if (!barang.opsiVariasi || barang.opsiVariasi.length === 0) return;
+
+      const namaProdukLower = barang.nama.toLowerCase();
+      const namaVariasiList = barang.opsiVariasi.map((v) => v.namaVariasi.toLowerCase());
+
+      // Strategi 1: Cari variasi yang cocok dengan seluruh query
+      let foundIndex = -1;
+      foundIndex = namaVariasiList.findIndex((v) => v.includes(searchLower));
+
+      // Strategi 2: Jika tidak ketemu dan query terdiri dari 2+ kata,
+      // cari variasi yang mengandung SEMUA kata tersebut
+      if (foundIndex === -1 && kataPisah.length > 1) {
+        foundIndex = namaVariasiList.findIndex((v) => {
+          return kataPisah.every((kata) => v.includes(kata));
+        });
+      }
+
+      // Strategi 3: Jika masih tidak ketemu, cek apakah nama produk cocok
+      // dengan seluruh query atau semua kata
+      if (foundIndex === -1) {
+        const namaCocok = namaProdukLower.includes(searchLower) || (kataPisah.length > 1 && kataPisah.every((kata) => namaProdukLower.includes(kata)));
+
+        if (namaCocok) {
+          // Jika nama produk cocok, pilih variasi pertama yang cocok dengan query
+          // atau variasi pertama (index 0)
+          const firstMatch = namaVariasiList.findIndex((v) => kataPisah.some((kata) => v.includes(kata)));
+          foundIndex = firstMatch !== -1 ? firstMatch : 0;
+        }
+      }
+
+      // Strategi 4: Jika query cocok dengan kombinasi nama + tipe
+      if (foundIndex === -1) {
+        foundIndex = namaVariasiList.findIndex((v) => {
+          const kombinasi = `${namaProdukLower} ${v}`;
+          return kombinasi.includes(searchLower);
+        });
+      }
+
+      if (foundIndex !== -1) {
+        setVariasiTerpilih((prev) => ({
+          ...prev,
+          [barang.id]: foundIndex,
+        }));
+      }
+    });
+  }, [searchQuery, daftarBarang]);
+  // =============================================================
 
   const handleSaveProduct = async (productData) => {
     setIsLoading(true);
@@ -77,13 +138,11 @@ function App() {
         setIsOpen(false);
         setSelectedProduct(null);
       } else {
-        // ========== CEK APAKAH ERROR DUPLIKAT ==========
         if (result.error?.type === "DUPLICATE") {
           showToast(`⚠️ ${result.error.message}`, "warning");
         } else {
           throw result.error;
         }
-        // ==============================================
       }
     } catch (error) {
       console.error("Gagal menyimpan:", error);
@@ -135,19 +194,42 @@ function App() {
     setIsOpen(true);
   };
 
-  // Filter produk
+  // ========== FILTER PRODUK (DENGAN SEARCH FULL NAMA + TIPE) ==========
   const barangDifilter = [...daftarBarang]
     .sort((a, b) => a.nama.localeCompare(b.nama))
     .filter((b) => {
       const cocokKategori = kategoriAktif === "Semua" || b.kategori === kategoriAktif;
 
-      const searchLower = searchQuery.toLowerCase();
-      const cocokNamaProduk = b.nama.toLowerCase().includes(searchLower);
-      const cocokNamaVariasi = b.opsiVariasi?.some((variasi) => variasi.namaVariasi.toLowerCase().includes(searchLower));
-      const cocokPencarian = cocokNamaProduk || cocokNamaVariasi;
+      const searchLower = searchQuery.toLowerCase().trim();
+      if (!searchLower) return cocokKategori;
+
+      const namaProdukLower = b.nama.toLowerCase();
+      const namaVariasiList = b.opsiVariasi?.map((v) => v.namaVariasi.toLowerCase()) || [];
+
+      // Cek apakah query ada di nama produk
+      const cocokNamaProduk = namaProdukLower.includes(searchLower);
+
+      // Cek apakah query ada di salah satu variasi
+      const cocokNamaVariasi = namaVariasiList.some((v) => v.includes(searchLower));
+
+      // Cek kombinasi nama + tipe (contoh: "neslite max")
+      const kombinasiNamaTipe = namaVariasiList.map((v) => `${namaProdukLower} ${v}`);
+      const cocokKombinasi = kombinasiNamaTipe.some((kombinasi) => kombinasi.includes(searchLower));
+
+      // Cek jika query terdiri dari 2+ kata, apakah SEMUA kata ada (di nama atau variasi)
+      const kataPisah = searchLower.split(" ").filter((kata) => kata.length > 0);
+      let cocokSemuaKata = false;
+      if (kataPisah.length > 1) {
+        cocokSemuaKata = kataPisah.every((kata) => {
+          return namaProdukLower.includes(kata) || namaVariasiList.some((v) => v.includes(kata));
+        });
+      }
+
+      const cocokPencarian = cocokNamaProduk || cocokNamaVariasi || cocokKombinasi || cocokSemuaKata;
 
       return cocokKategori && cocokPencarian;
     });
+  // =====================================================================
 
   return (
     <div className="min-h-screen bg-[#0F0A1A] text-slate-200 antialiased selection:bg-amber-500 selection:text-white">
