@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import logoArkan from "../../assets/logo.png";
+import logoArkan from "../../../public/Logo.png";
 
 const menuItems = [
   { to: "/admin", label: "Dashboard", icon: "📊", end: true },

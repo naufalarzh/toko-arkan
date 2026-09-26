@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { formatPrice } from "../utils/helpers";
 import { useAuth } from "../context/AuthContext";
-import logoArkan from "../assets/logo.png";
+import logoArkan from "../../public/Logo.png";
 
 export default function Header({ searchQuery, setSearchQuery, totalItems, totalPrice, onOpenCart }) {
   const navigate = useNavigate();
