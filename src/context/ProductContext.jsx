@@ -25,18 +25,18 @@ export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from("products").select("*, product_variants(*)").order("created_at", { ascending: false });
+const fetchProducts = useCallback(async () => {
+  setLoading(true);
+  const { data, error } = await supabase.from("products").select("*, product_variants(*)").order("name", { ascending: true }); // ✅ A→Z (ascending)
 
-    if (error) {
-      console.error("Gagal fetch produk:", error);
-      setProducts([]);
-    } else {
-      setProducts((data || []).map(normalizeProduct));
-    }
-    setLoading(false);
-  }, []);
+  if (error) {
+    console.error("Gagal fetch produk:", error);
+    setProducts([]);
+  } else {
+    setProducts((data || []).map(normalizeProduct));
+  }
+  setLoading(false);
+}, []);
 
   useEffect(() => {
     fetchProducts();

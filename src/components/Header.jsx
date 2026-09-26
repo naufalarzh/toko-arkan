@@ -4,7 +4,7 @@ import { formatPrice } from "../utils/helpers";
 import { useAuth } from "../context/AuthContext";
 import logoArkan from "../../public/Logo.png";
 
-export default function Header({ searchQuery, setSearchQuery, totalItems, totalPrice, onOpenCart }) {
+export default function Header({searchQuery, setSearchQuery, totalItems, totalPrice, onOpenCart }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -14,6 +14,10 @@ export default function Header({ searchQuery, setSearchQuery, totalItems, totalP
     } else {
       navigate("/admin/login");
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
   };
 
   return (
@@ -42,6 +46,7 @@ export default function Header({ searchQuery, setSearchQuery, totalItems, totalP
         </div>
 
         <div className="w-full sm:w-auto flex items-center gap-2 sm:gap-3">
+          {/* Search dengan tombol clear */}
           <div className="relative flex-1 sm:flex-initial sm:w-72">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">🔍</span>
             <input
@@ -49,8 +54,19 @@ export default function Header({ searchQuery, setSearchQuery, totalItems, totalP
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari:"
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-inner"
+              className="w-full pl-10 pr-10 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-inner"
             />
+            {/* ✅ Tombol X — muncul kalau ada teks */}
+            {searchQuery && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-rose-500 transition"
+                title="Hapus pencarian"
+                aria-label="Hapus pencarian"
+              >
+                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-rose-100 dark:hover:bg-rose-950/50 flex items-center justify-center text-[11px] font-bold">✕</span>
+              </button>
+            )}
           </div>
 
           <button

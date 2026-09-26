@@ -14,12 +14,12 @@ export default function AdminLayout() {
   const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Tampilkan email sebagai username
   const username = user?.email || "Admin";
 
+  // ✅ Logout → ke landing user
   const handleLogout = async () => {
+    navigate("/");
     await signOut();
-    navigate("/admin/login");
   };
 
   const closeSidebar = () => setSidebarOpen(false);

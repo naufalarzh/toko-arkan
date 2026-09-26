@@ -69,8 +69,12 @@ export default function CartPanel({ show, onClose, cart, totalItems, totalPrice,
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => onRemove(item.productId, item.variantName)} className="self-start text-rose-500 hover:text-rose-700 text-sm transition" title="Hapus">
-                    🗑️
+                  <button
+                    onClick={() => onRemove(item.productId, item.variantName)}
+                    className="self-start text-xs font-bold text-rose-500 hover:text-rose-700 transition px-1 py-0.5"
+                    title="Hapus item"
+                  >
+                    Hapus
                   </button>
                 </div>
               ))}

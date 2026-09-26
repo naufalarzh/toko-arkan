@@ -15,7 +15,7 @@ import { parsePrice } from "../utils/helpers";
 import { printReceipt } from "../utils/printReceipt";
 
 export default function UserPage() {
-  const { products } = useProducts(); // ← ambil produk dari Context
+  const { products } = useProducts();
 
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,6 +132,8 @@ export default function UserPage() {
   const filteredProducts = searchResults.map((r) => r.product);
   const matchedVariantMap = Object.fromEntries(searchResults.filter((r) => r.matchedVariantIndex !== null).map((r) => [r.product.id, r.matchedVariantIndex]));
 
+  const isSearching = searchQuery.trim().length > 0;
+
   // Sync active variant saat user search
   useEffect(() => {
     if (!searchQuery.trim()) return;
@@ -202,9 +204,26 @@ export default function UserPage() {
       />
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <Banner />
+        {/* ✅ Banner & CategoryTabs hanya tampil kalau TIDAK sedang search */}
+        {!isSearching && (
+          <>
+            <Banner />
+            <CategoryTabs selectedCategory={selectedCategory} onSelect={setSelectedCategory} />
+          </>
+        )}
 
-        <CategoryTabs selectedCategory={selectedCategory} onSelect={setSelectedCategory} />
+        {/* ✅ Info pencarian saat search aktif */}
+        {isSearching && (
+          <div className="mb-5 flex items-center justify-between gap-2 flex-wrap">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              Hasil pencarian untuk <span className="font-bold text-indigo-600 dark:text-indigo-400">"{searchQuery}"</span>
+              <span className="ml-1.5 text-xs">({filteredProducts.length} produk)</span>
+            </div>
+            <button onClick={() => setSearchQuery("")} className="text-xs font-semibold text-rose-500 hover:text-rose-700 transition px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30">
+              ✕ Hapus pencarian
+            </button>
+          </div>
+        )}
 
         <ProductGrid
           products={filteredProducts}
