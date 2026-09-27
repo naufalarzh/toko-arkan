@@ -6,7 +6,6 @@ import logoArkan from "../../../public/Logo.png";
 const menuItems = [
   { to: "/admin", label: "Dashboard", icon: "📊", end: true },
   { to: "/admin/products", label: "Produk", icon: "📦" },
-  { to: "/admin/products/new", label: "Tambah Produk", icon: "➕" },
 ];
 
 export default function AdminLayout() {
@@ -16,10 +15,9 @@ export default function AdminLayout() {
 
   const username = user?.email || "Admin";
 
-  // ✅ Logout → ke landing user
   const handleLogout = async () => {
-    navigate("/");
     await signOut();
+    window.location.href = "/";
   };
 
   const closeSidebar = () => setSidebarOpen(false);
