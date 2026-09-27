@@ -6,19 +6,9 @@ export default function ProductCard({ product, activeVariantIndex, isMatched, on
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-indigo-500/50 group transition-all duration-300 flex flex-row sm:flex-col">
-      {/* ===== Gambar =====
-          Mobile : horizontal, w-24, aspect-square
-          Desktop: vertikal, aspect-square, object-cover (full tanpa celah)
-      */}
+      {/* ===== Gambar ===== */}
       <div className="relative w-24 sm:w-full aspect-square bg-slate-100 dark:bg-slate-950 overflow-hidden flex-shrink-0">
-        <img
-          src={resolveImage(currentVariant.image, 600)}
-          alt={product.name}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={handleImageError}
-        />
+        <img src={resolveImage(currentVariant.image, 600)} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" onError={handleImageError} />
         <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider border border-slate-200 dark:border-slate-800 shadow-sm z-10">
           {product.category}
         </span>
