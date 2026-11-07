@@ -1,10 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { formatPrice } from "../utils/helpers";
+import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import logoArkan from "../../public/Logo.png";
 
-export default function Header({searchQuery, setSearchQuery, totalItems, totalPrice, onOpenCart }) {
+export default function Header({ searchQuery, setSearchQuery, totalItems, onOpenCart }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -16,82 +15,163 @@ export default function Header({searchQuery, setSearchQuery, totalItems, totalPr
     }
   };
 
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
-
   return (
-    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
-        <div className="flex items-center justify-between w-full sm:w-auto gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl shadow-lg shadow-indigo-500/20 overflow-hidden flex-shrink-0">
-              <img src={logoArkan} alt="Toko Arkan" className="w-full h-full object-cover" />
+    <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        {/* DESKTOP LAYOUT */}
+        <div className="hidden sm:flex items-center justify-between h-20 gap-4">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate("/")}>
+            <div className="w-12 h-12 rounded-full overflow-hidden mr-3 flex-shrink-0">
+              <img src={logoArkan} alt="Toko Arkan" className="w-full h-full object-contain" />
             </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-                Toko Arkan
-              </h1>
-              <p className="text-[11px] sm:text-xs text-indigo-600 dark:text-indigo-400 font-medium">Sembako, Top Up & Digital</p>
-            </div>
+            <span className="font-extrabold text-xl text-slate-900 dark:text-white tracking-tight">Toko Arkan</span>
           </div>
 
-          <button
-            onClick={handleAdminClick}
-            className="sm:hidden flex items-center justify-center p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-indigo-600 hover:text-white transition"
-            title={isAuthenticated ? "Dashboard Admin" : "Login Admin"}
-          >
-            {isAuthenticated ? <span className="text-base">👤</span> : <span className="text-base">🔑</span>}
-          </button>
+          {/* Search, Menu, Icons */}
+          <div className="flex items-center gap-6">
+            <div className="relative w-48 lg:w-64">
+              <span className="absolute inset-y-0 left-0 flex items-center pointer-events-none text-slate-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                value={searchQuery || ""}
+                onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+                placeholder="Cari barang..."
+                className="w-full pl-7 pr-2 py-2 bg-transparent border-b border-slate-300 dark:border-slate-700 focus:border-indigo-500 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none transition-all duration-300"
+              />
+            </div>
+
+            <nav className="flex items-center gap-6">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `text-sm font-semibold transition-colors ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"}`
+                }
+              >
+                Harga
+              </NavLink>
+              <NavLink
+                to="/hutang"
+                className={({ isActive }) =>
+                  `text-sm font-semibold transition-colors ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"}`
+                }
+              >
+                Hutang
+              </NavLink>
+            </nav>
+
+            <div className="w-px h-6 bg-slate-300 dark:bg-slate-700"></div>
+
+            <div className="flex items-center gap-4">
+              <button onClick={onOpenCart || (() => {})} className="relative p-1.5 text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  ></path>
+                </svg>
+                {totalItems > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold text-white transform translate-x-1/4 -translate-y-1/4 bg-rose-500 rounded-full">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+              <button onClick={handleAdminClick} className="p-1.5 text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors flex items-center gap-2">
+                {isAuthenticated ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span className="text-sm font-bold hidden lg:block">Admin</span>
+                  </>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="w-full sm:w-auto flex items-center gap-2 sm:gap-3">
-          {/* Search dengan tombol clear */}
-          <div className="relative flex-1 sm:flex-initial sm:w-72">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari:"
-              className="w-full pl-10 pr-10 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-2xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-inner"
-            />
-            {/* ✅ Tombol X — muncul kalau ada teks */}
-            {searchQuery && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-rose-500 transition"
-                title="Hapus pencarian"
-                aria-label="Hapus pencarian"
-              >
-                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-rose-100 dark:hover:bg-rose-950/50 flex items-center justify-center text-[11px] font-bold">✕</span>
+        {/* MOBILE LAYOUT */}
+        <div className="flex flex-col sm:hidden py-3 gap-3">
+          {/* Baris 1: Logo & Menu Kanan */}
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+              <div className="w-9 h-9 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                <img src={logoArkan} alt="Toko Arkan" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-extrabold text-base text-slate-900 dark:text-white tracking-tight">Toko Arkan</span>
+            </div>
+
+            {/* Menu & Ikon Kanan */}
+            <div className="flex items-center gap-3">
+              {/* Menu Harga & Hutang */}
+              <nav className="flex items-center gap-3 mr-1">
+                <NavLink to="/" className={({ isActive }) => `text-xs font-semibold transition-colors ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400"}`}>
+                  Harga
+                </NavLink>
+                <NavLink
+                  to="/hutang"
+                  className={({ isActive }) => `text-xs font-semibold transition-colors ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400"}`}
+                >
+                  Hutang
+                </NavLink>
+              </nav>
+
+              {/* Ikon Cart & Login */}
+              <button onClick={onOpenCart || (() => {})} className="relative p-1 text-slate-700 dark:text-slate-300">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  ></path>
+                </svg>
+                {totalItems > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-[8px] font-bold text-white transform translate-x-1/4 -translate-y-1/4 bg-rose-500 rounded-full">
+                    {totalItems}
+                  </span>
+                )}
               </button>
-            )}
+              <button onClick={handleAdminClick} className="p-1 text-slate-700 dark:text-slate-300">
+                {isAuthenticated ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
-          <button
-            onClick={onOpenCart}
-            className="relative flex items-center gap-2 px-3 sm:px-3.5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-lg shadow-indigo-500/20 flex-shrink-0"
-            title="Buka Keranjang"
-          >
-            <span className="text-base">🛒</span>
-            {totalItems > 0 && (
-              <>
-                <span className="text-sm font-bold hidden sm:inline">{formatPrice(totalPrice)}</span>
-                <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
-                  {totalItems}
-                </span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={handleAdminClick}
-            className="hidden sm:flex items-center justify-center p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition group"
-            title={isAuthenticated ? "Dashboard Admin" : "Login Admin"}
-          >
-            {isAuthenticated ? <span className="text-base">👤</span> : <span className="text-base">🔑</span>}
-          </button>
+          {/* Baris 2: Search Bar Full Width */}
+          <div className="relative w-full">
+            <span className="absolute inset-y-0 left-0 flex items-center pointer-events-none text-slate-400 pl-3">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={searchQuery || ""}
+              onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+              placeholder="Cari barang..."
+              className="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none transition-all"
+            />
+          </div>
         </div>
       </div>
     </header>

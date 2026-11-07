@@ -3,14 +3,20 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { ProductProvider } from "./context/ProductContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { DebtProvider } from "./context/DebtContext";
 
+// Halaman Public
 import UserPage from "./pages/UserPage";
+import ProtectedHutang from "./pages/ProtectedHutang"; // <-- Import halaman yang diproteksi password
+
+// Halaman Admin
 import LoginAdmin from "./pages/admin/LoginAdmin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import ProductList from "./pages/admin/ProductList";
 import ProductForm from "./pages/admin/ProductForm";
 
+// Proteksi Rute Admin (Wajib Login)
 function RequireAuth({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
@@ -26,7 +32,7 @@ function RequireAuth({ children }) {
   return children;
 }
 
-// Redirect ke dashboard kalau sudah login tapi buka /admin/login
+// Redirect jika sudah login tapi malah buka halaman login
 function RedirectIfAuthed({ children }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
@@ -38,36 +44,50 @@ export default function App() {
   return (
     <AuthProvider>
       <ProductProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<UserPage />} />
+        <DebtProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* ========================================= */}
+              {/* RUTE PUBLIC                               */}
+              {/* ========================================= */}
+              <Route path="/" element={<UserPage />} />
 
-            <Route
-              path="/admin/login"
-              element={
-                <RedirectIfAuthed>
-                  <LoginAdmin />
-                </RedirectIfAuthed>
-              }
-            />
+              {/* Rute Hutang yang diamankan dengan Password */}
+              <Route path="/hutang" element={<ProtectedHutang />} />
 
-            <Route
-              path="/admin"
-              element={
-                <RequireAuth>
-                  <AdminLayout />
-                </RequireAuth>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="products" element={<ProductList />} />
-              <Route path="products/new" element={<ProductForm />} />
-              <Route path="products/:id/edit" element={<ProductForm />} />
-            </Route>
+              {/* ========================================= */}
+              {/* RUTE ADMIN                                */}
+              {/* ========================================= */}
+              <Route
+                path="/admin/login"
+                element={
+                  <RedirectIfAuthed>
+                    <LoginAdmin />
+                  </RedirectIfAuthed>
+                }
+              />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <AdminLayout />
+                  </RequireAuth>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="products" element={<ProductList />} />
+                <Route path="products/new" element={<ProductForm />} />
+                <Route path="products/:id/edit" element={<ProductForm />} />
+              </Route>
+
+              {/* ========================================= */}
+              {/* FALLBACK                                  */}
+              {/* ========================================= */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </DebtProvider>
       </ProductProvider>
     </AuthProvider>
   );

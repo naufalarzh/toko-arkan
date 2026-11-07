@@ -1,1 +1,11 @@
-@import "tailwindcss";
+@import "tailwindcss"; /* Atau @tailwind base; @tailwind components; @tailwind utilities; tergantung versi Anda */
+
+/* TAMBAHKAN BAGIAN INI */
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Opsional: Paksa body menggunakan Poppins */
+body {
+  font-family: var(--font-sans);
+}
