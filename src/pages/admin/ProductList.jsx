@@ -4,7 +4,6 @@ import { useProducts } from "../../context/ProductContext";
 import ConfirmDialog from "../../components/admin/ConfirmDialog";
 import { resolveImage, handleImageError } from "../../utils/resolveImage";
 
-// Label untuk tiap kategori
 const CATEGORY_LABELS = {
   all: "Semua Kategori",
   sembako: "Sembako",
@@ -14,7 +13,6 @@ const CATEGORY_LABELS = {
   lainnya: "Lainnya",
 };
 
-// 🎨 Warna badge per kategori
 const CATEGORY_COLORS = {
   sembako: "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/50",
   rokok: "bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/50",
@@ -23,10 +21,8 @@ const CATEGORY_COLORS = {
   lainnya: "bg-slate-100 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700",
 };
 
-// Fallback untuk kategori baru yang belum terdaftar
 const DEFAULT_CATEGORY_COLOR = "bg-violet-100 dark:bg-violet-950/50 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-900/50";
 
-// Helper ambil warna badge
 const getCategoryColor = (category) => CATEGORY_COLORS[category] || DEFAULT_CATEGORY_COLOR;
 
 export default function ProductList() {
@@ -37,7 +33,6 @@ export default function ProductList() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Tutup dropdown kalau klik di luar
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -74,9 +69,9 @@ export default function ProductList() {
         </div>
         <Link
           to="/admin/products/new"
-          className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold px-5 py-3 rounded-2xl transition shadow-lg shadow-indigo-500/30 active:scale-[0.98]"
+          className="inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold px-5 py-3 rounded-2xl transition shadow-lg shadow-indigo-500/30 active:scale-[0.98]"
         >
-          <span>➕</span> Tambah Produk
+          Tambah Produk
         </Link>
       </div>
 
@@ -197,7 +192,6 @@ export default function ProductList() {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      {/* ✅ Badge dengan warna per kategori */}
                       <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
                         {CATEGORY_LABELS[p.category] || p.category}
                       </span>
@@ -208,17 +202,20 @@ export default function ProductList() {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        {/* Tombol Edit tanpa emoji */}
                         <Link
                           to={`/admin/products/${p.id}/edit`}
                           className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
                         >
-                          ✏️ Edit
+                          Edit
                         </Link>
+
+                        {/* Tombol Hapus tanpa emoji */}
                         <button
                           onClick={() => setDeleteTarget(p)}
                           className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-950 transition"
                         >
-                          🗑️ Hapus
+                          Hapus
                         </button>
                       </div>
                     </td>

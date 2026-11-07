@@ -1,8 +1,8 @@
 export const CATEGORIES = [
-  { id: "all", label: "Semua", icon: "✨" },
-  { id: "sembako", label: "Sembako", icon: "🍚" },
-  { id: "rokok", label: "Rokok", icon: "🚬" },
-  { id: "alat-tulis", label: "Alat Tulis", icon: "✏️" },
-  { id: "listrik", label: "Listrik", icon: "⚡" },
-  { id: "lainnya", label: "Lainnya", icon: "📦" },
+  { id: "all", label: "Semua"},
+  { id: "sembako", label: "Sembako"},
+  { id: "rokok", label: "Rokok"},
+  { id: "alat-tulis", label: "Alat Tulis"},
+  { id: "listrik", label: "Listrik"},
+  { id: "lainnya", label: "Lainnya"},
 ];

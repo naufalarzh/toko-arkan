@@ -120,7 +120,24 @@ export function DebtProvider({ children }) {
   };
 
   // ==========================================
-  // 5. HAPUS PELANGGAN
+  // 5. EDIT RINCIAN HUTANG
+  // ==========================================
+  const updateDebt = async (debtId, updatedData) => {
+    const { error } = await supabase
+      .from("debts")
+      .update({
+        amount: updatedData.amount,
+        date: updatedData.date,
+        note: updatedData.note,
+      })
+      .eq("id", debtId);
+
+    if (error) throw error;
+    await fetchDebts();
+  };
+
+  // ==========================================
+  // 6. HAPUS PELANGGAN
   // ==========================================
   const deleteCustomer = async (customerId) => {
     // Karena di database kita menggunakan ON DELETE CASCADE,
@@ -140,6 +157,7 @@ export function DebtProvider({ children }) {
     addDebt,
     payDebt,
     updateCustomerName,
+    updateDebt, // <-- Fungsi baru untuk edit rincian hutang
     deleteCustomer,
     refetch: fetchDebts,
   };

@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import ConfirmDialog from "../components/admin/ConfirmDialog"; // <-- TAMBAHKAN INI
+import ConfirmDialog from "../components/admin/ConfirmDialog";
 import { formatPrice } from "../utils/helpers";
 import { useDebts } from "../context/DebtContext";
 
 export default function HutangPage() {
-  const { customers, loading, addDebt, payDebt, updateCustomerName, deleteCustomer } = useDebts();
+  // Ambil updateDebt dari context
+  const { customers, loading, addDebt, payDebt, updateCustomerName, deleteCustomer, updateDebt } = useDebts();
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -20,8 +21,11 @@ export default function HutangPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
 
-  // STATE BARU: Modal Hapus
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // STATE UNTUK EDIT RINCIAN HUTANG
+  const [isEditDebtModalOpen, setIsEditDebtModalOpen] = useState(false);
+  const [editDebtData, setEditDebtData] = useState({ id: null, amount: "", date: "", note: "" });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -123,7 +127,6 @@ export default function HutangPage() {
     setPayAmount(raw ? parseInt(raw, 10).toLocaleString("id-ID") : "");
   };
 
-  // HANDLERS EDIT & HAPUS PELANGGAN
   const handleEditNameSubmit = async (e) => {
     e.preventDefault();
     if (!editName.trim()) return;
@@ -135,18 +138,49 @@ export default function HutangPage() {
     }
   };
 
-  const handleDeleteCustomer = () => {
-    setIsDeleteModalOpen(true); // Buka pop-up cantik
-  };
+  const handleDeleteCustomer = () => setIsDeleteModalOpen(true);
 
   const executeDeleteCustomer = async () => {
     try {
       await deleteCustomer(selectedCustomerId);
-      setIsDeleteModalOpen(false); // Tutup pop-up
-      setSelectedCustomerId(null); // Kembali ke daftar utama
+      setIsDeleteModalOpen(false);
+      setSelectedCustomerId(null);
     } catch (error) {
       alert("Gagal menghapus pelanggan: " + error.message);
     }
+  };
+
+  // ==========================================
+  // HANDLERS EDIT RINCIAN HUTANG
+  // ==========================================
+  const openEditDebtModal = (debt) => {
+    setEditDebtData({
+      id: debt.id,
+      amount: debt.amount.toLocaleString("id-ID"),
+      date: debt.date,
+      note: debt.note || "",
+    });
+    setIsEditDebtModalOpen(true);
+  };
+
+  const handleEditDebtSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const numericAmount = parseInt(editDebtData.amount.replace(/[^0-9]/g, ""), 10);
+      await updateDebt(editDebtData.id, {
+        amount: numericAmount,
+        date: editDebtData.date,
+        note: editDebtData.note,
+      });
+      setIsEditDebtModalOpen(false);
+    } catch (error) {
+      alert("Gagal mengubah rincian hutang: " + error.message);
+    }
+  };
+
+  const handleEditDebtAmountChange = (e) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    setEditDebtData({ ...editDebtData, amount: raw ? parseInt(raw, 10).toLocaleString("id-ID") : "" });
   };
 
   // ==========================================
@@ -173,7 +207,6 @@ export default function HutangPage() {
             ← Kembali ke Daftar Pelanggan
           </button>
 
-          {/* BAGIAN ATAS: Nama Pelanggan & Tombol Aksi Kanan */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold uppercase flex-shrink-0">{selectedCustomer.name.charAt(0)}</div>
@@ -183,7 +216,6 @@ export default function HutangPage() {
               </div>
             </div>
 
-            {/* Tombol Update & Delete di Pojok Kanan */}
             <div className="flex items-center gap-2 self-start sm:self-center">
               <button
                 onClick={() => {
@@ -203,19 +235,16 @@ export default function HutangPage() {
             </div>
           </div>
 
-          {/* CARD TOTAL HUTANG */}
           <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-xl shadow-rose-500/20">
             <p className="text-sm font-semibold text-rose-100 uppercase tracking-wider mb-1">Total Hutang Tersisa</p>
             <p className="text-3xl sm:text-4xl font-extrabold">{formatPrice(customerTotalBelum)}</p>
             {customerTotalBelum === 0 && <p className="text-sm font-bold text-white mt-2 bg-white/20 inline-block px-3 py-1 rounded-lg">✅ Semua Hutang Telah Lunas</p>}
           </div>
 
-          {/* BAGIAN RINCIAN HUTANG */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 className="font-bold">Rincian Hutang</h3>
 
-              {/* Tombol Bayar di Kanan Header Rincian */}
               {customerTotalBelum > 0 && (
                 <button
                   onClick={() => setIsPayModalOpen(true)}
@@ -236,11 +265,14 @@ export default function HutangPage() {
                 {selectedCustomer.debts.map((debt) => (
                   <div key={debt.id} className="p-4 sm:p-5 flex flex-row items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm sm:text-base ${debt.status === "lunas" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"}`}
+                      {/* TOMBOL EDIT RINCIAN HUTANG */}
+                      <button
+                        onClick={() => openEditDebtModal(debt)}
+                        className="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 text-xs font-bold rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
                       >
-                        {debt.status === "lunas" ? "✅" : "⏳"}
-                      </div>
+                        Edit
+                      </button>
+
                       <div className="min-w-0">
                         <p className="font-bold text-sm sm:text-base truncate">{debt.note || "Tanpa keterangan"}</p>
                         <p className="text-[11px] sm:text-xs text-slate-500">Tanggal: {debt.date}</p>
@@ -260,7 +292,7 @@ export default function HutangPage() {
         </main>
         <Footer />
 
-        {/* MODAL EDIT NAMA */}
+        {/* MODAL EDIT NAMA PELANGGAN */}
         {isEditModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)}></div>
@@ -278,6 +310,66 @@ export default function HutangPage() {
                   <button
                     type="button"
                     onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition"
+                  >
+                    Batal
+                  </button>
+                  <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg">
+                    Simpan
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL EDIT RINCIAN HUTANG */}
+        {isEditDebtModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsEditDebtModalOpen(false)}></div>
+            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
+              <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4">Edit Rincian Hutang</h3>
+              <form onSubmit={handleEditDebtSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Nominal Hutang</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-bold">Rp</span>
+                    <input
+                      type="text"
+                      required
+                      value={editDebtData.amount}
+                      onChange={handleEditDebtAmountChange}
+                      className="w-full pl-12 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Tanggal Hutang</label>
+                  <input
+                    type="date"
+                    required
+                    value={editDebtData.date}
+                    onChange={(e) => setEditDebtData({ ...editDebtData, date: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Keterangan</label>
+                  <input
+                    type="text"
+                    value={editDebtData.note}
+                    onChange={(e) => setEditDebtData({ ...editDebtData, note: e.target.value })}
+                    placeholder="Contoh: Beras 5kg"
+                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditDebtModalOpen(false)}
                     className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition"
                   >
                     Batal
@@ -341,7 +433,6 @@ export default function HutangPage() {
           </div>
         )}
 
-        {/* MODAL HAPUS PELANGGAN (CUSTOM DIALOG) */}
         <ConfirmDialog
           open={isDeleteModalOpen}
           title="Hapus Pelanggan?"

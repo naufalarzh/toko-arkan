@@ -18,7 +18,8 @@ export default function LoginAdmin() {
 
     try {
       await signIn(email.trim(), password);
-      navigate("/admin");
+      // Langsung arahkan ke halaman produk setelah login
+      navigate("/admin/products");
     } catch (err) {
       console.error(err);
       setError(err.message === "Invalid login credentials" ? "Email atau password salah" : err.message || "Gagal login. Coba lagi.");

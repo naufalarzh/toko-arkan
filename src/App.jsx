@@ -7,14 +7,14 @@ import { DebtProvider } from "./context/DebtContext";
 
 // Halaman Public
 import UserPage from "./pages/UserPage";
-import ProtectedHutang from "./pages/ProtectedHutang"; // <-- Import halaman yang diproteksi password
+import ProtectedHutang from "./pages/ProtectedHutang";
 
 // Halaman Admin
 import LoginAdmin from "./pages/admin/LoginAdmin";
 import AdminLayout from "./pages/admin/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
 import ProductList from "./pages/admin/ProductList";
 import ProductForm from "./pages/admin/ProductForm";
+// import Dashboard from "./pages/admin/Dashboard"; // <-- Dihapus
 
 // Proteksi Rute Admin (Wajib Login)
 function RequireAuth({ children }) {
@@ -51,8 +51,6 @@ export default function App() {
               {/* RUTE PUBLIC                               */}
               {/* ========================================= */}
               <Route path="/" element={<UserPage />} />
-
-              {/* Rute Hutang yang diamankan dengan Password */}
               <Route path="/hutang" element={<ProtectedHutang />} />
 
               {/* ========================================= */}
@@ -75,7 +73,8 @@ export default function App() {
                   </RequireAuth>
                 }
               >
-                <Route index element={<Dashboard />} />
+                {/* Rute index langsung ke ProductList */}
+                <Route index element={<ProductList />} />
                 <Route path="products" element={<ProductList />} />
                 <Route path="products/new" element={<ProductForm />} />
                 <Route path="products/:id/edit" element={<ProductForm />} />
