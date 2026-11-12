@@ -28,8 +28,8 @@ export default function ProtectedHutang() {
         <Header searchQuery="" setSearchQuery={() => {}} totalItems={0} onOpenCart={() => {}} />
 
         <main className="flex-grow flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl animate-fade-in text-center">
-            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-3xl mx-auto mb-5 shadow-inner">🔒</div>
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xl animate-fade-in text-center">
+            <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-3xl mx-auto mb-5">🔒</div>
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">Akses Terbatas</h2>
             <p className="text-sm text-slate-500 mb-6">Halaman Catatan Hutang bersifat privat. Silakan masukkan password untuk melanjutkan.</p>
 
@@ -40,7 +40,6 @@ export default function ProtectedHutang() {
             )}
 
             <form onSubmit={handleLogin}>
-              {/* ATRIBUT autoFocus TELAH DIHAPUS */}
               <input
                 type="password"
                 value={password}
@@ -48,7 +47,8 @@ export default function ProtectedHutang() {
                 placeholder="Masukkan Password..."
                 className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-center text-sm font-bold tracking-widest text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4 transition"
               />
-              <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition shadow-lg shadow-indigo-500/30 active:scale-95">
+              {/* TOMBOL DIUBAH JADI FLAT (Tanpa Shadow & Efek Scale) */}
+              <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors duration-200">
                 Buka Halaman
               </button>
             </form>

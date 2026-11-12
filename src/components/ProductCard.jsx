@@ -19,11 +19,7 @@ export default function ProductCard({ product, activeVariantIndex, isMatched, on
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={handleImageError}
         />
-
-        {/* Label Kategori (Warna disamakan semua) */}
-        <span className="absolute top-2 left-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm z-10 bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-slate-700">
-          {product.category}
-        </span>
+        {/* Label Kategori sudah dihilangkan dari sini */}
       </div>
 
       {/* ===== Info ===== */}

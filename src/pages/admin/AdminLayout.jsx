@@ -3,7 +3,6 @@ import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logoArkan from "../../../public/Logo.png";
 
-// Icon dihapus dari array menu
 const menuItems = [{ to: "/admin/products", label: "Produk" }];
 
 export default function AdminLayout() {
@@ -49,8 +48,9 @@ export default function AdminLayout() {
               to={item.to}
               onClick={closeSidebar}
               className={({ isActive }) =>
-                `flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
-                  isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                // MENGHAPUS KELAS shadow-lg & shadow-indigo-500/20 DISINI
+                `flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors duration-200 ${
+                  isActive ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`
               }
             >
@@ -61,7 +61,7 @@ export default function AdminLayout() {
           <Link
             to="/"
             onClick={closeSidebar}
-            className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition mt-4 border-t border-slate-800 pt-4"
+            className="flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors duration-200 mt-4 border-t border-slate-800 pt-4"
           >
             Lihat Toko
           </Link>
@@ -72,7 +72,7 @@ export default function AdminLayout() {
             <p className="text-[10px] text-slate-500 uppercase tracking-wider">Login sebagai</p>
             <p className="text-sm font-bold text-white truncate">{username}</p>
           </div>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-rose-400 hover:bg-rose-500/10 transition">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-rose-400 hover:bg-rose-500/10 transition-colors duration-200">
             Keluar
           </button>
         </div>

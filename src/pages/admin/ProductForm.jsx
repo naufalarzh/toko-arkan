@@ -253,6 +253,10 @@ export default function ProductForm() {
 
   const errorCount = Object.keys(errors).length;
 
+  // Class dasar untuk semua input agar tidak ada outline putih
+  const inputBaseClass =
+    "w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 transition-colors duration-200 focus:outline-none focus:ring-0 focus:border-indigo-500";
+
   return (
     <div className="min-h-screen flex justify-center">
       <div className="w-full max-w-2xl p-4 sm:p-6 lg:p-8">
@@ -294,9 +298,7 @@ export default function ProductForm() {
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
               placeholder="Contoh: Indomie"
-              className={`w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border rounded-lg text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-                errors.name ? "border-rose-400 dark:border-rose-600 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
-              }`}
+              className={`${inputBaseClass} ${errors.name ? "border-rose-400 dark:border-rose-600" : "border-slate-200 dark:border-slate-700"}`}
             />
             {errors.name && <p className="mt-1 text-xs text-rose-500 font-semibold">⚠️ {errors.name}</p>}
           </div>
@@ -314,7 +316,7 @@ export default function ProductForm() {
                     onClick={() => updateField("category", cat.id)}
                     className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-colors duration-200 flex items-center border ${
                       isActive
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                        ? "bg-indigo-600 text-white border-indigo-600"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
                     }`}
                   >
@@ -350,6 +352,7 @@ export default function ProductForm() {
                   urlInputVisible={urlInputVisible}
                   setUrlInputVisible={setUrlInputVisible}
                   cardRef={(el) => (variantRefs.current[idx] = el)}
+                  inputBaseClass={inputBaseClass}
                 />
               ))}
             </div>
@@ -357,7 +360,7 @@ export default function ProductForm() {
             <button
               type="button"
               onClick={addVariant}
-              className="mt-3 w-full flex items-center justify-center border-2 border-dashed border-indigo-300 dark:border-indigo-800 hover:border-indigo-500 dark:hover:border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold py-2.5 rounded-lg transition-all active:scale-[0.98] text-sm"
+              className="mt-3 w-full flex items-center justify-center border-2 border-dashed border-indigo-300 dark:border-indigo-800 hover:border-indigo-500 dark:hover:border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold py-2.5 rounded-lg transition-all text-sm"
             >
               Tambah Tipe / Varian
             </button>
@@ -367,17 +370,16 @@ export default function ProductForm() {
           <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-2 pb-6">
             <Link
               to="/admin/products"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-lg font-bold text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-center"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-lg font-bold text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-200 text-center"
             >
               Batal
             </Link>
+
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-bold text-sm text-white transition shadow-lg shadow-indigo-500/30 ${
-                submitting
-                  ? "bg-slate-400 dark:bg-slate-700 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98]"
+              className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-bold text-sm text-white transition-colors duration-200 ${
+                submitting ? "bg-slate-400 dark:bg-slate-700 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
               {submitting ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Produk"}
@@ -392,7 +394,7 @@ export default function ProductForm() {
 // ============================================================
 // KOMPONEN VARIANT CARD
 // ============================================================
-function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRemove, onMove, onUpload, onPaste, onRemoveImage, urlInputVisible, setUrlInputVisible, cardRef }) {
+function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRemove, onMove, onUpload, onPaste, onRemoveImage, urlInputVisible, setUrlInputVisible, cardRef, inputBaseClass }) {
   const fileInputRef = useRef(null);
   const showUrl = urlInputVisible[idx] || false;
 
@@ -456,9 +458,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             value={variant.typeName}
             onChange={(e) => onUpdate(idx, "typeName", e.target.value)}
             placeholder="Tipe (contoh: 1 Bungkus)"
-            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-              errors[`v_${idx}_typeName`] ? "border-rose-400 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
-            }`}
+            className={`${inputBaseClass} ${errors[`v_${idx}_typeName`] ? "border-rose-400" : "border-slate-200 dark:border-slate-700"}`}
           />
           {errors[`v_${idx}_typeName`] && <p className="mt-1 text-[11px] text-rose-500 font-semibold">⚠️ {errors[`v_${idx}_typeName`]}</p>}
         </div>
@@ -470,9 +470,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             onChange={(e) => onUpdate(idx, "price", e.target.value)}
             onFocus={(e) => e.target.select()}
             placeholder="Rp 0"
-            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-              errors[`v_${idx}_price`] ? "border-rose-400 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
-            }`}
+            className={`${inputBaseClass} ${errors[`v_${idx}_price`] ? "border-rose-400" : "border-slate-200 dark:border-slate-700"}`}
           />
           {errors[`v_${idx}_price`] && <p className="mt-1 text-[11px] text-rose-500 font-semibold">⚠️ {errors[`v_${idx}_price`]}</p>}
         </div>
@@ -489,7 +487,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="flex items-center justify-center px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
           >
             {isUploading ? "Memuat..." : "Upload"}
           </button>
@@ -497,17 +495,17 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             type="button"
             onClick={() => onPaste(idx)}
             disabled={isUploading}
-            className="flex items-center justify-center px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
           >
             Paste
           </button>
           <button
             type="button"
             onClick={toggleUrl}
-            className={`flex items-center justify-center px-2 py-2 rounded-lg border text-[11px] font-bold transition ${
+            className={`flex items-center justify-center px-2 py-2 rounded-lg border text-[11px] font-bold transition focus:outline-none ${
               showUrl
                 ? "bg-indigo-600 text-white border-indigo-600"
-                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:border-indigo-300 dark:hover:border-indigo-700"
+                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
             }`}
           >
             URL
@@ -533,7 +531,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
               value={variant.image}
               onChange={(e) => onUpdate(idx, "image", e.target.value)}
               placeholder="https://example.com/gambar.jpg"
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className={`${inputBaseClass} text-xs border-slate-200 dark:border-slate-700`}
             />
           </div>
         )}
@@ -543,25 +541,17 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
         {errors[`v_${idx}_image`] && <p className="mt-1 text-[11px] text-rose-500 font-semibold">⚠️ {errors[`v_${idx}_image`]}</p>}
 
         {/* Preview */}
-        <div className="mt-2.5 flex items-center gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+        <div className="mt-2.5 flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
           <img src={previewSrc} alt="preview" className="w-12 h-12 rounded-md object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0" onError={handleImageError} />
-          <div className="flex-1 min-w-0">
-            <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Preview</p>
-            <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate">
-              {!variant.image || variant.image === DEFAULT_IMAGE
-                ? "🖼️ Default (noimage.png)"
-                : variant.image.startsWith("data:")
-                  ? "File upload (lama)"
-                  : variant.image.startsWith("http")
-                    ? variant.image
-                    : "Supabase"}
-            </p>
+
+          <div className="flex-1 min-w-0 flex items-center justify-between">
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Pratinjau Gambar</p>
+            {variant.image && variant.image !== DEFAULT_IMAGE && (
+              <button type="button" onClick={() => onRemoveImage(idx)} className="text-xs font-bold text-rose-500 hover:text-rose-700 transition px-2 focus:outline-none" title="Hapus gambar">
+                Hapus
+              </button>
+            )}
           </div>
-          {variant.image && variant.image !== DEFAULT_IMAGE && (
-            <button type="button" onClick={() => onRemoveImage(idx)} className="text-xs font-bold text-rose-500 hover:text-rose-700 transition px-1.5" title="Hapus gambar">
-              ✕
-            </button>
-          )}
         </div>
       </div>
     </div>
