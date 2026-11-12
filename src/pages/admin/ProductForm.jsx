@@ -10,7 +10,6 @@ const emptyVariant = () => ({
   image: "",
 });
 
-// 1. UBAH DEFAULT KATEGORI MENJADI LAINNYA
 const emptyProduct = () => ({
   name: "",
   category: "lainnya",
@@ -25,7 +24,6 @@ const CATEGORY_OPTIONS = [
   { id: "lainnya", label: "Lainnya" },
 ];
 
-// Cek apakah path perlu dihapus dari storage (bukan default & bukan URL eksternal)
 const isStoragePath = (p) => p && !p.startsWith("http") && !p.startsWith("data:") && p !== DEFAULT_IMAGE;
 
 export default function ProductForm() {
@@ -44,7 +42,6 @@ export default function ProductForm() {
   const nameRef = useRef(null);
   const variantRefs = useRef([]);
 
-  // Load data kalau edit
   useEffect(() => {
     if (isEdit) {
       const existing = products.find((p) => p.id === Number(id));
@@ -64,7 +61,6 @@ export default function ProductForm() {
     }
   }, [id, isEdit, products, navigate]);
 
-  // ===== FIELD HANDLERS =====
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -121,7 +117,6 @@ export default function ProductForm() {
     });
   };
 
-  // ===== IMAGE HANDLERS =====
   const handleFileUpload = async (idx, file) => {
     if (!file) return;
 
@@ -184,7 +179,6 @@ export default function ProductForm() {
     updateVariant(idx, "image", "");
   };
 
-  // ===== VALIDATION =====
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = "Nama produk wajib diisi";
@@ -259,7 +253,6 @@ export default function ProductForm() {
 
   const errorCount = Object.keys(errors).length;
 
-  // ===== RENDER =====
   return (
     <div className="min-h-screen flex justify-center">
       <div className="w-full max-w-2xl p-4 sm:p-6 lg:p-8">
@@ -279,7 +272,7 @@ export default function ProductForm() {
 
         {/* Banner Error */}
         {showErrorBanner && (
-          <div className="mb-4 px-4 py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 flex items-start gap-3 animate-toast-in">
+          <div className="mb-4 px-4 py-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 flex items-start gap-3 animate-toast-in">
             <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">!</div>
             <div className="flex-1">
               <p className="font-bold text-rose-700 dark:text-rose-300 text-sm mb-0.5">{errorCount > 0 ? `Ada ${errorCount} field yang belum diisi` : "Terjadi kesalahan saat menyimpan"}</p>
@@ -293,7 +286,7 @@ export default function ProductForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* ===== NAMA BARANG ===== */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Nama Barang *</label>
             <input
               ref={nameRef}
@@ -301,7 +294,7 @@ export default function ProductForm() {
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
               placeholder="Contoh: Indomie"
-              className={`w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+              className={`w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border rounded-lg text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
                 errors.name ? "border-rose-400 dark:border-rose-600 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
               }`}
             />
@@ -309,7 +302,7 @@ export default function ProductForm() {
           </div>
 
           {/* ===== KATEGORI ===== */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Kategori</label>
             <div className="flex flex-wrap gap-2">
               {CATEGORY_OPTIONS.map((cat) => {
@@ -319,8 +312,7 @@ export default function ProductForm() {
                     key={cat.id}
                     type="button"
                     onClick={() => updateField("category", cat.id)}
-                    // 2. MENGHAPUS EFEK SCALE & MEMBUAT HOVER LEBIH TENANG
-                    className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 flex items-center border ${
+                    className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-colors duration-200 flex items-center border ${
                       isActive
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -334,7 +326,7 @@ export default function ProductForm() {
           </div>
 
           {/* ===== VARIAN ===== */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <div className="mb-4">
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipe / Variasi *</label>
               <p className="text-xs text-slate-400 mt-0.5">{form.variants.length} varian terdaftar</p>
@@ -365,7 +357,7 @@ export default function ProductForm() {
             <button
               type="button"
               onClick={addVariant}
-              className="mt-3 w-full flex items-center justify-center border-2 border-dashed border-indigo-300 dark:border-indigo-800 hover:border-indigo-500 dark:hover:border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold py-2.5 rounded-2xl transition-all active:scale-[0.98] text-sm"
+              className="mt-3 w-full flex items-center justify-center border-2 border-dashed border-indigo-300 dark:border-indigo-800 hover:border-indigo-500 dark:hover:border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold py-2.5 rounded-lg transition-all active:scale-[0.98] text-sm"
             >
               Tambah Tipe / Varian
             </button>
@@ -375,14 +367,14 @@ export default function ProductForm() {
           <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-2 pb-6">
             <Link
               to="/admin/products"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-center"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-lg font-bold text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-center"
             >
               Batal
             </Link>
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-indigo-500/30 ${
+              className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-bold text-sm text-white transition shadow-lg shadow-indigo-500/30 ${
                 submitting
                   ? "bg-slate-400 dark:bg-slate-700 cursor-not-allowed shadow-none"
                   : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98]"
@@ -415,7 +407,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
   return (
     <div
       ref={cardRef}
-      className={`p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border transition-all ${
+      className={`p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border transition-all ${
         hasError ? "border-rose-300 dark:border-rose-800 bg-rose-50/30 dark:bg-rose-950/20" : "border-slate-200 dark:border-slate-800"
       }`}
     >
@@ -443,7 +435,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             </button>
           </div>
           <span className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Tipe {idx + 1}</span>
-          {hasError && <span className="text-[10px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-950/50 px-2 py-0.5 rounded-full">⚠️ Perlu diperbaiki</span>}
+          {hasError && <span className="text-[10px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-950/50 px-2 py-0.5 rounded-md">⚠️ Perlu diperbaiki</span>}
         </div>
         <button
           type="button"
@@ -464,7 +456,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             value={variant.typeName}
             onChange={(e) => onUpdate(idx, "typeName", e.target.value)}
             placeholder="Tipe (contoh: 1 Bungkus)"
-            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
               errors[`v_${idx}_typeName`] ? "border-rose-400 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
             }`}
           />
@@ -478,7 +470,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             onChange={(e) => onUpdate(idx, "price", e.target.value)}
             onFocus={(e) => e.target.select()}
             placeholder="Rp 0"
-            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+            className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
               errors[`v_${idx}_price`] ? "border-rose-400 ring-1 ring-rose-300" : "border-slate-200 dark:border-slate-700"
             }`}
           />
@@ -541,7 +533,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
               value={variant.image}
               onChange={(e) => onUpdate(idx, "image", e.target.value)}
               placeholder="https://example.com/gambar.jpg"
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
           </div>
         )}

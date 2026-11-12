@@ -21,19 +21,7 @@ export default function UserPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const [activeVariants, setActiveVariants] = useState({
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-    7: 0,
-    8: 0,
-    9: 0,
-    10: 0,
-    11: 0,
-  });
+  const [activeVariants, setActiveVariants] = useState({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 });
 
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
@@ -60,6 +48,18 @@ export default function UserPage() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  // ✅ KUNCI SCROLL HALAMAN UTAMA SAAT CART TERBUKA
+  useEffect(() => {
+    if (showCart) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showCart]);
 
   // ===== HANDLERS =====
   const handleVariantChange = (productId, variantIndex) => {
@@ -204,7 +204,6 @@ export default function UserPage() {
       />
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* ✅ Banner & CategoryTabs hanya tampil kalau TIDAK sedang search */}
         {!isSearching && (
           <>
             <Banner />
@@ -212,7 +211,6 @@ export default function UserPage() {
           </>
         )}
 
-        {/* ✅ Info pencarian saat search aktif */}
         {isSearching && (
           <div className="mb-5 flex items-center justify-between gap-2 flex-wrap">
             <div className="text-sm text-slate-500 dark:text-slate-400">

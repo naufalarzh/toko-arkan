@@ -6,7 +6,6 @@ import { formatPrice } from "../utils/helpers";
 import { useDebts } from "../context/DebtContext";
 
 export default function HutangPage() {
-  // Ambil updateDebt dari context
   const { customers, loading, addDebt, payDebt, updateCustomerName, deleteCustomer, updateDebt } = useDebts();
 
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
@@ -23,7 +22,6 @@ export default function HutangPage() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // STATE UNTUK EDIT RINCIAN HUTANG
   const [isEditDebtModalOpen, setIsEditDebtModalOpen] = useState(false);
   const [editDebtData, setEditDebtData] = useState({ id: null, amount: "", date: "", note: "" });
 
@@ -49,9 +47,6 @@ export default function HutangPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ==========================================
-  // PERHITUNGAN & PENGURUTAN
-  // ==========================================
   const totalBelumLunas = customers.reduce((total, c) => {
     return total + c.debts.filter((d) => d.status === "belum_lunas").reduce((sum, d) => sum + d.amount, 0);
   }, 0);
@@ -66,9 +61,6 @@ export default function HutangPage() {
     return [...customers].filter((c) => c.name.toLowerCase().includes(searchCustomer.toLowerCase())).sort((a, b) => a.name.localeCompare(b.name));
   }, [customers, searchCustomer]);
 
-  // ==========================================
-  // HANDLERS
-  // ==========================================
   const handleAddDebt = async (e) => {
     if (e) e.preventDefault();
     if (!formData.name || !formData.amount) return;
@@ -150,9 +142,6 @@ export default function HutangPage() {
     }
   };
 
-  // ==========================================
-  // HANDLERS EDIT RINCIAN HUTANG
-  // ==========================================
   const openEditDebtModal = (debt) => {
     setEditDebtData({
       id: debt.id,
@@ -183,9 +172,6 @@ export default function HutangPage() {
     setEditDebtData({ ...editDebtData, amount: raw ? parseInt(raw, 10).toLocaleString("id-ID") : "" });
   };
 
-  // ==========================================
-  // LOADING STATE
-  // ==========================================
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -204,12 +190,12 @@ export default function HutangPage() {
 
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
           <button onClick={() => setSelectedCustomerId(null)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition mb-6">
-            ← Kembali ke Daftar Pelanggan
+          Kembali ke Daftar Pelanggan
           </button>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold uppercase flex-shrink-0">{selectedCustomer.name.charAt(0)}</div>
+              <div className="w-16 h-16 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold uppercase flex-shrink-0">{selectedCustomer.name.charAt(0)}</div>
               <div>
                 <h1 className="text-3xl font-extrabold">{selectedCustomer.name}</h1>
                 <p className="text-sm text-slate-500">Total {selectedCustomer.debts.length} transaksi tercatat</p>
@@ -222,35 +208,35 @@ export default function HutangPage() {
                   setEditName(selectedCustomer.name);
                   setIsEditModalOpen(true);
                 }}
-                className="px-4 py-2 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition shadow-sm"
+                className="px-4 py-2 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition shadow-sm"
               >
                 Update
               </button>
               <button
                 onClick={handleDeleteCustomer}
-                className="px-4 py-2 bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-bold rounded-xl hover:bg-rose-200 dark:hover:bg-rose-900/60 transition shadow-sm"
+                className="px-4 py-2 bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-bold rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900/60 transition shadow-sm"
               >
                 Delete
               </button>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-xl shadow-rose-500/20">
+          <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-xl p-6 sm:p-8 text-white mb-8 shadow-lg shadow-rose-500/20">
             <p className="text-sm font-semibold text-rose-100 uppercase tracking-wider mb-1">Total Hutang Tersisa</p>
             <p className="text-3xl sm:text-4xl font-extrabold">{formatPrice(customerTotalBelum)}</p>
             {customerTotalBelum === 0 && <p className="text-sm font-bold text-white mt-2 bg-white/20 inline-block px-3 py-1 rounded-lg">✅ Semua Hutang Telah Lunas</p>}
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 className="font-bold">Rincian Hutang</h3>
 
               {customerTotalBelum > 0 && (
                 <button
                   onClick={() => setIsPayModalOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 whitespace-nowrap"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 text-xs sm:text-sm rounded-lg shadow-md transition active:scale-95 whitespace-nowrap"
                 >
-                  💵 Bayar Hutang
+                Bayar Hutang
                 </button>
               )}
             </div>
@@ -265,7 +251,6 @@ export default function HutangPage() {
                 {selectedCustomer.debts.map((debt) => (
                   <div key={debt.id} className="p-4 sm:p-5 flex flex-row items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      {/* TOMBOL EDIT RINCIAN HUTANG */}
                       <button
                         onClick={() => openEditDebtModal(debt)}
                         className="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 text-xs font-bold rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
@@ -296,7 +281,7 @@ export default function HutangPage() {
         {isEditModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)}></div>
-            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4">Ubah Nama Pelanggan</h3>
               <form onSubmit={handleEditNameSubmit}>
                 <input
@@ -304,17 +289,17 @@ export default function HutangPage() {
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                  className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
                 />
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setIsEditModalOpen(false)}
-                    className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition"
+                    className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition"
                   >
                     Batal
                   </button>
-                  <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg">
+                  <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition shadow-lg">
                     Simpan
                   </button>
                 </div>
@@ -327,7 +312,7 @@ export default function HutangPage() {
         {isEditDebtModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsEditDebtModalOpen(false)}></div>
-            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-4">Edit Rincian Hutang</h3>
               <form onSubmit={handleEditDebtSubmit} className="space-y-4">
                 <div>
@@ -339,7 +324,7 @@ export default function HutangPage() {
                       required
                       value={editDebtData.amount}
                       onChange={handleEditDebtAmountChange}
-                      className="w-full pl-12 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-12 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
@@ -351,7 +336,7 @@ export default function HutangPage() {
                     required
                     value={editDebtData.date}
                     onChange={(e) => setEditDebtData({ ...editDebtData, date: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert"
+                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert"
                   />
                 </div>
 
@@ -362,7 +347,7 @@ export default function HutangPage() {
                     value={editDebtData.note}
                     onChange={(e) => setEditDebtData({ ...editDebtData, note: e.target.value })}
                     placeholder="Contoh: Beras 5kg"
-                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -370,11 +355,11 @@ export default function HutangPage() {
                   <button
                     type="button"
                     onClick={() => setIsEditDebtModalOpen(false)}
-                    className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition"
+                    className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-lg transition"
                   >
                     Batal
                   </button>
-                  <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg">
+                  <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition shadow-lg">
                     Simpan
                   </button>
                 </div>
@@ -387,7 +372,7 @@ export default function HutangPage() {
         {isPayModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsPayModalOpen(false)}></div>
-            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6">
               <div className="text-center mb-5">
                 <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">💵</div>
                 <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-1">Pembayaran Hutang</h3>
@@ -396,7 +381,7 @@ export default function HutangPage() {
                 </p>
               </div>
 
-              <button onClick={handlePayAll} className="w-full mb-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl transition shadow-lg">
+              <button onClick={handlePayAll} className="w-full mb-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition shadow-lg">
                 Bayar Semua (Lunas)
               </button>
 
@@ -414,13 +399,13 @@ export default function HutangPage() {
                     value={payAmount}
                     onChange={handlePayAmountChange}
                     placeholder="Masukkan nominal..."
-                    className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-lg font-extrabold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-lg font-extrabold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!payAmount}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Proses Pembayaran
                 </button>
@@ -461,19 +446,20 @@ export default function HutangPage() {
           </div>
           <button
             onClick={() => setIsFormOpen(true)}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold px-5 py-3 rounded-2xl shadow-lg transition"
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold px-5 py-3 rounded-lg shadow-lg transition"
           >
             <span>➕ Tambah Hutang</span>
           </button>
         </div>
 
-        <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-xl">
+        {/* KOTAK MERAH TOTAL HUTANG */}
+        <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-xl p-6 sm:p-8 text-white mb-8 shadow-lg">
           <p className="text-sm font-semibold text-rose-100 uppercase">Total Seluruh Hutang Belum Lunas</p>
           <p className="text-3xl sm:text-4xl font-extrabold mb-2">{formatPrice(totalBelumLunas)}</p>
           <p className="text-sm text-rose-100">Dari {countBelumLunas} pelanggan</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h3 className="font-bold">Daftar Pelanggan</h3>
 
@@ -525,7 +511,7 @@ export default function HutangPage() {
                         <p className={`font-extrabold ${isLunas ? "text-emerald-500" : "text-rose-600"}`}>{isLunas ? "Lunas" : formatPrice(totalHutang)}</p>
                         <p className="text-[10px] text-slate-400 font-semibold uppercase">{isLunas ? "Selesai" : "Belum Lunas"}</p>
                       </div>
-                      <span className="text-slate-300 group-hover:text-indigo-500 transition">➔</span>
+                      <span className="text-slate-300 group-hover:text-indigo-500 transition"></span>
                     </div>
                   </div>
                 );
@@ -541,7 +527,7 @@ export default function HutangPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setIsFormOpen(false)}></div>
 
-          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-bold text-lg">Tambah Catatan Baru</h3>
               <button onClick={() => setIsFormOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">
@@ -564,11 +550,11 @@ export default function HutangPage() {
                       }}
                       onFocus={() => setShowSuggestions(true)}
                       placeholder="Ketik nama (atau pilih)..."
-                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                     />
 
                     {showSuggestions && filteredNames.length > 0 && (
-                      <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                      <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-48 overflow-y-auto">
                         {filteredNames.map((name) => (
                           <li key={name}>
                             <button
@@ -597,7 +583,7 @@ export default function HutangPage() {
                         value={formData.amount}
                         onChange={handleAmountChange}
                         placeholder="0"
-                        className="w-full pl-12 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full pl-12 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                       />
                     </div>
                   </div>
@@ -612,7 +598,7 @@ export default function HutangPage() {
                         required
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition appearance-none [&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert"
+                        className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition appearance-none [&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert"
                       />
                     </div>
                   </div>
@@ -624,7 +610,7 @@ export default function HutangPage() {
                       value={formData.note}
                       onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                       placeholder="Contoh: Beras 5kg"
-                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                     />
                   </div>
                 </div>
@@ -632,7 +618,7 @@ export default function HutangPage() {
             </div>
 
             <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-              <button type="submit" form="form-tambah-hutang" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl transition shadow-lg w-full sm:w-auto">
+              <button type="submit" form="form-tambah-hutang" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-lg transition shadow-lg w-full sm:w-auto">
                 Simpan Catatan
               </button>
             </div>

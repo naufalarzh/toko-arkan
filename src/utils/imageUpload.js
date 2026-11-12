@@ -1,15 +1,11 @@
 import imageCompression from "browser-image-compression";
 import { supabase, BUCKET_NAME } from "../lib/supabase";
 
-// Rasio standar untuk semua gambar produk (3:4 portrait)
-// Ganti ke 1 (1:1 persegi) atau 4/3 (landscape) kalau mau beda
-const TARGET_RATIO = 3 / 4;
+// TARGET RASIO 1:1 (PERSEGI) SEPERTI SHOPEE
+const TARGET_RATIO = 1;
 
 /**
  * Crop gambar ke rasio target via Canvas.
- * @param {File|Blob} file - File gambar
- * @param {number} ratio - Target rasio (width / height), misal 3/4 = 0.75
- * @returns {Promise<File>} - File hasil crop
  */
 const cropToRatio = (file, ratio) => {
   return new Promise((resolve, reject) => {
@@ -41,7 +37,7 @@ const cropToRatio = (file, ratio) => {
         canvas.width = sw;
         canvas.height = sh;
 
-        // Background putih (kalau nanti ada transparansi)
+        // Background putih (kalau ada transparansi)
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, sw, sh);
 
@@ -77,20 +73,10 @@ const cropToRatio = (file, ratio) => {
   });
 };
 
-/**
- * Kompres + crop + upload gambar ke Supabase Storage.
- * Semua gambar akan dipaksa ke rasio TARGET_RATIO (3:4).
- * @param {File} file - File dari input / paste
- * @returns {Promise<string>} - Path file di storage
- */
 export const uploadImage = async (file) => {
   if (!file) return null;
+  if (!file.type.startsWith("image/")) throw new Error("File harus berupa gambar");
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("File harus berupa gambar");
-  }
-
-  // 1. Kompres dulu (kurangi size & dimensi)
   const compressed = await imageCompression(file, {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,
@@ -99,10 +85,8 @@ export const uploadImage = async (file) => {
     initialQuality: 0.85,
   });
 
-  // 2. Crop ke rasio seragam
   const cropped = await cropToRatio(compressed, TARGET_RATIO);
 
-  // 3. Kompres ulang hasil crop (biar size optimal)
   const finalFile = await imageCompression(cropped, {
     maxSizeMB: 0.5,
     maxWidthOrHeight: 1280,
@@ -111,33 +95,22 @@ export const uploadImage = async (file) => {
     initialQuality: 0.85,
   });
 
-  // 4. Generate nama file unik
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
   const filePath = `products/${fileName}`;
 
-  // 5. Upload ke Supabase
   const { error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, finalFile, {
     contentType: "image/webp",
-    cacheControl: "31536000", // cache 1 tahun
+    cacheControl: "31536000",
     upsert: false,
   });
 
   if (error) throw error;
-
   return filePath;
 };
 
-/**
- * Hapus gambar dari storage.
- * @param {string} path - Path file di storage
- */
 export const deleteImage = async (path) => {
   if (!path) return;
-
-  // Skip default sentinel & URL eksternal
-  if (path === "__DEFAULT__" || path.startsWith("http") || path.startsWith("data:")) {
-    return;
-  }
+  if (path === "__DEFAULT__" || path.startsWith("http") || path.startsWith("data:")) return;
 
   const { error } = await supabase.storage.from(BUCKET_NAME).remove([path]);
   if (error) {
@@ -146,26 +119,11 @@ export const deleteImage = async (path) => {
   }
 };
 
-/**
- * Dapatkan URL publik gambar dengan transformasi (resize + WebP otomatis).
- * @param {string} path - Path file di storage
- * @param {object} opts - { width, height, quality }
- */
 export const getImageUrl = (path, opts = {}) => {
   if (!path) return null;
-
   if (path.startsWith("http") || path.startsWith("data:")) return path;
 
-  const { width = 400, height, quality = 75 } = opts;
-
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path, {
-    transform: {
-      width,
-      ...(height && { height }),
-      quality,
-      resize: "cover",
-    },
-  });
-
+  // Karena paket gratis tidak support transform, kita ambil URL aslinya
+  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
   return data.publicUrl;
 };

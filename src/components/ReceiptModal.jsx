@@ -1,5 +1,5 @@
 import React from "react";
-import { formatPrice } from "../utils/helpers";
+import { formatPrice } from "../utils/helpers"; // <-- PASTIKAN IMPORT INI BENAR
 
 export default function ReceiptModal({ receipt, onClose, onPrint }) {
   if (!receipt) return null;
@@ -8,9 +8,16 @@ export default function ReceiptModal({ receipt, onClose, onPrint }) {
     <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-8 text-center text-white">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-3xl mx-auto mb-3">✓</div>
+      <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+        {/* HEADER STRUK */}
+        <div className="bg-emerald-600 px-6 py-8 text-center text-white">
+          {/* IKON CEKLIS SVG */}
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4 border border-white/30">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+
           <h2 className="text-xl font-extrabold mb-1">Pembayaran Berhasil</h2>
           <p className="text-xs text-emerald-100">{receipt.date}</p>
           <p className="text-[10px] text-emerald-100 mt-1 font-mono">{receipt.invoiceNo}</p>
@@ -56,14 +63,15 @@ export default function ReceiptModal({ receipt, onClose, onPrint }) {
           </div>
         </div>
 
+        {/* FOOTER TOMBOL */}
         <div className="border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-slate-50 dark:bg-slate-900 flex gap-2">
           <button
             onClick={onPrint}
-            className="flex-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-[0.98] flex items-center justify-center gap-2"
+            className="flex-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-200 flex items-center justify-center gap-2"
           >
             🖨️ Cetak Struk
           </button>
-          <button onClick={onClose} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-indigo-500/20 active:scale-[0.98]">
+          <button onClick={onClose} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors duration-200">
             Selesai
           </button>
         </div>
