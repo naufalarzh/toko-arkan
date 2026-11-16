@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logoArkan from "../../../public/Logo.png";
@@ -12,6 +12,44 @@ export default function AdminLayout() {
 
   const username = user?.email || "Admin";
 
+  // =========================================================
+  // SOLUSI: MENGUNCI SCROLL DI MOBILE
+  // =========================================================
+  useEffect(() => {
+    if (sidebarOpen) {
+      // Kunci scroll pada body, html, dan div #root (standar React)
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+
+      const rootEl = document.getElementById("root");
+      if (rootEl) {
+        rootEl.style.overflow = "hidden";
+        rootEl.style.height = "100vh"; // Mencegah tinggi dinamis saat keyboard muncul
+      }
+    } else {
+      // Kembalikan seperti semula saat sidebar ditutup
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+
+      const rootEl = document.getElementById("root");
+      if (rootEl) {
+        rootEl.style.overflow = "";
+        rootEl.style.height = "";
+      }
+    }
+
+    // Cleanup: Pastikan scroll kembali normal jika komponen ini di-unmount
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      const rootEl = document.getElementById("root");
+      if (rootEl) {
+        rootEl.style.overflow = "";
+        rootEl.style.height = "";
+      }
+    };
+  }, [sidebarOpen]);
+
   const handleLogout = async () => {
     await signOut();
     window.location.href = "/";
@@ -21,12 +59,16 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-slate-100 dark:bg-slate-950">
-      {/* Overlay mobile */}
+      {/* Overlay mobile - Menutupi seluruh layar saat sidebar terbuka */}
       {sidebarOpen && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden" onClick={closeSidebar} />}
 
       {/* Sidebar */}
-      <aside className={`w-64 bg-slate-900 text-slate-100 flex flex-col fixed h-full z-50 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
-        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+      <aside
+        className={`w-64 bg-slate-900 text-slate-100 flex flex-col fixed h-full z-50 transition-transform duration-300 overflow-y-auto ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
+      >
+        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/20 flex-shrink-0 p-1">
               <img src={logoArkan} alt="Toko Arkan" className="w-full h-full object-contain" />
@@ -41,14 +83,13 @@ export default function AdminLayout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1">
           {menuItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               onClick={closeSidebar}
               className={({ isActive }) =>
-                // MENGHAPUS KELAS shadow-lg & shadow-indigo-500/20 DISINI
                 `flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors duration-200 ${
                   isActive ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`
@@ -67,7 +108,7 @@ export default function AdminLayout() {
           </Link>
         </nav>
 
-        <div className="px-3 py-4 border-t border-slate-800">
+        <div className="px-3 py-4 border-t border-slate-800 flex-shrink-0 mt-auto">
           <div className="px-4 py-2 mb-2">
             <p className="text-[10px] text-slate-500 uppercase tracking-wider">Login sebagai</p>
             <p className="text-sm font-bold text-white truncate">{username}</p>
@@ -78,8 +119,9 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Content */}
-      <main className="flex-1 lg:ml-64 min-h-screen w-full">
+      {/* Content Area */}
+      <main className="flex-1 lg:ml-64 min-h-screen w-full flex flex-col">
+        {/* Topbar Mobile */}
         <div className="lg:hidden sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -96,7 +138,10 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <Outlet />
+        {/* Render halaman (ProductList, ProductForm, dll) */}
+        <div className="flex-1">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

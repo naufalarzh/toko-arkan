@@ -28,10 +28,15 @@ export default function LoginAdmin() {
   };
 
   return (
+    // Background gradient tetap dibiarkan sesuai permintaan
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl mb-4 shadow-xl shadow-indigo-500/30 overflow-hidden p-3">
+          {/* EFEK PADA ICON DIHILANGKAN: 
+              Menghapus bg-gradient-to-tr from-indigo-600 to-violet-500
+              Menghapus shadow-xl shadow-indigo-500/30
+              Diganti dengan bg-slate-800 / border solid agar tetap rapi */}
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-800 border border-slate-700 rounded-xl mb-4 overflow-hidden p-3">
             <img src={logoArkan} alt="Toko Arkan" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-extrabold text-white mb-1">Admin Panel</h1>
@@ -49,7 +54,6 @@ export default function LoginAdmin() {
 
           <div className="mb-4">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email</label>
-            {/* ATRIBUT autoFocus TELAH DIHAPUS */}
             <input
               type="email"
               value={email}
@@ -72,12 +76,13 @@ export default function LoginAdmin() {
             />
           </div>
 
+          {/* EFEK PADA BUTTON DIHILANGKAN: 
+              Menghapus shadow-lg shadow-indigo-500/30
+              Menghapus efek transition */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full font-bold py-3.5 rounded-lg transition shadow-lg shadow-indigo-500/30 ${
-              loading ? "bg-slate-400 dark:bg-slate-700 text-white cursor-not-allowed shadow-none" : "bg-indigo-600 hover:bg-indigo-700 text-white"
-            }`}
+            className={`w-full font-bold py-3.5 rounded-lg ${loading ? "bg-slate-400 dark:bg-slate-700 text-white cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
           >
             {loading ? "⏳ Memproses..." : "Masuk"}
           </button>

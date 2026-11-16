@@ -448,7 +448,7 @@ export default function HutangPage() {
             onClick={() => setIsFormOpen(true)}
             className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold px-5 py-3 rounded-lg shadow-lg transition"
           >
-            <span>➕ Tambah Hutang</span>
+            <span>Tambah Hutang</span>
           </button>
         </div>
 

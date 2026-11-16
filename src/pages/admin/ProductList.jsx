@@ -13,7 +13,6 @@ const CATEGORY_LABELS = {
   lainnya: "Lainnya",
 };
 
-// ... (Bagian mapping warna tetap sama) ...
 const CATEGORY_COLORS = {
   sembako: "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/50",
   rokok: "bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/50",
@@ -68,18 +67,23 @@ export default function ProductList() {
           <p className="text-sm text-slate-500 dark:text-slate-400">{products.length} produk total</p>
         </div>
 
-        {/* TOMBOL TAMBAH PRODUK DIUBAH JADI FLAT */}
         <Link to="/admin/products/new" className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3 rounded-lg transition-colors duration-200">
           Tambah Produk
         </Link>
       </div>
 
-      {/* ... (Sisa kode tabel dan filter tetap sama) ... */}
-
       {/* Filter bar */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 mb-5 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">🔍</span>
+          {/* ====== PERUBAHAN ADA DI SINI ====== */}
+          {/* Emoji 🔍 diganti dengan SVG Icon */}
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-400">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </span>
+          {/* ==================================== */}
+
           <input
             type="text"
             value={search}
