@@ -185,7 +185,7 @@ export default function ProductForm() {
 
     form.variants.forEach((v, i) => {
       if (!v.typeName.trim()) errs[`v_${i}_typeName`] = "Nama varian wajib diisi";
-      if (!v.price.trim() || v.price === "Rp 0") errs[`v_${i}_price`] = "Harga wajib diisi";
+      // Validasi harga dihilangkan agar boleh kosong / Rp 0
     });
 
     setErrors(errs);
@@ -205,7 +205,7 @@ export default function ProductForm() {
         nameRef.current?.focus();
       } else {
         for (let i = 0; i < form.variants.length; i++) {
-          if (errs[`v_${i}_typeName`] || errs[`v_${i}_price`]) {
+          if (errs[`v_${i}_typeName`]) {
             variantRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" });
             break;
           }
@@ -221,7 +221,7 @@ export default function ProductForm() {
     }
 
     const normalizePrice = (p) => {
-      const num = p.replace(/[^0-9]/g, "");
+      const num = (p || "").replace(/[^0-9]/g, "");
       return "Rp " + (parseInt(num, 10) || 0).toLocaleString("id-ID");
     };
 
@@ -253,7 +253,6 @@ export default function ProductForm() {
 
   const errorCount = Object.keys(errors).length;
 
-  // Class dasar untuk semua input agar tidak ada outline putih
   const inputBaseClass =
     "w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border rounded-lg text-sm text-slate-900 dark:text-slate-100 transition-colors duration-200 focus:outline-none focus:ring-0 focus:border-indigo-500";
 
@@ -402,7 +401,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
     setUrlInputVisible((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const hasError = errors[`v_${idx}_typeName`] || errors[`v_${idx}_price`];
+  const hasError = errors[`v_${idx}_typeName`];
 
   const previewSrc = resolveImage(variant.image, 200);
 

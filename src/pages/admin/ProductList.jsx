@@ -28,6 +28,7 @@ export default function ProductList() {
   const { products, deleteProduct } = useProducts();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [zeroPriceFilter, setZeroPriceFilter] = useState(false); // STATE BARU UNTUK FILTER RP 0
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -44,10 +45,15 @@ export default function ProductList() {
 
   const categories = ["all", ...new Set(products.map((p) => p.category))];
 
+  // LOGIKA FILTER DIPERBARUI
   const filtered = products.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = categoryFilter === "all" || p.category === categoryFilter;
-    return matchSearch && matchCat;
+
+    // Jika zeroPriceFilter aktif, cek apakah ada varian dengan priceNumber === 0
+    const matchZeroPrice = !zeroPriceFilter || p.variants.some((v) => v.priceNumber === 0);
+
+    return matchSearch && matchCat && matchZeroPrice;
   });
 
   const confirmDelete = async () => {
@@ -75,14 +81,11 @@ export default function ProductList() {
       {/* Filter bar */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 mb-5 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          {/* ====== PERUBAHAN ADA DI SINI ====== */}
-          {/* Emoji 🔍 diganti dengan SVG Icon */}
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-400">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           </span>
-          {/* ==================================== */}
 
           <input
             type="text"
@@ -98,62 +101,78 @@ export default function ProductList() {
           )}
         </div>
 
-        {/* Custom Dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* TOMBOL FILTER RP 0 BARU */}
           <button
             type="button"
-            onClick={() => setDropdownOpen((v) => !v)}
-            className="w-full sm:w-52 flex items-center justify-between gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            onClick={() => setZeroPriceFilter(!zeroPriceFilter)}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              zeroPriceFilter
+                ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400"
+                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/60"
+            }`}
           >
-            <span className="flex items-center gap-2 truncate">
-              {categoryFilter !== "all" && <span className={`w-2 h-2 rounded-full ${getCategoryColor(categoryFilter).split(" ")[0].replace("bg-", "bg-").replace("-100", "-500")}`}></span>}
-              <span className="truncate">{currentLabel}</span>
-            </span>
-            <span className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}>▼</span>
+            <span className={`w-2 h-2 rounded-full ${zeroPriceFilter ? "bg-emerald-500" : "bg-slate-400"}`}></span>
+            Rp 0
           </button>
 
-          {dropdownOpen && (
-            <div className="absolute right-0 sm:left-0 sm:right-auto z-30 mt-2 w-full sm:w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl overflow-hidden animate-fade-in">
-              {categories.map((c) => {
-                const isActive = categoryFilter === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => {
-                      setCategoryFilter(c);
-                      setDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition flex items-center justify-between ${
-                      isActive ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2 truncate">
-                      {c !== "all" && (
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            c === "sembako"
-                              ? "bg-amber-500"
-                              : c === "rokok"
-                                ? "bg-rose-500"
-                                : c === "alat-tulis"
-                                  ? "bg-blue-500"
-                                  : c === "listrik"
-                                    ? "bg-yellow-500"
-                                    : c === "lainnya"
-                                      ? "bg-slate-500"
-                                      : "bg-violet-500"
-                          }`}
-                        ></span>
-                      )}
-                      <span className="truncate">{CATEGORY_LABELS[c] || c}</span>
-                    </span>
-                    {isActive && <span className="text-indigo-600 dark:text-indigo-400 text-xs">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          {/* Custom Dropdown Kategori */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen((v) => !v)}
+              className="w-full sm:w-52 flex items-center justify-between gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            >
+              <span className="flex items-center gap-2 truncate">
+                {categoryFilter !== "all" && <span className={`w-2 h-2 rounded-full ${getCategoryColor(categoryFilter).split(" ")[0].replace("bg-", "bg-").replace("-100", "-500")}`}></span>}
+                <span className="truncate">{currentLabel}</span>
+              </span>
+              <span className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}>▼</span>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 sm:left-0 sm:right-auto z-30 mt-2 w-full sm:w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl overflow-hidden animate-fade-in">
+                {categories.map((c) => {
+                  const isActive = categoryFilter === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        setCategoryFilter(c);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition flex items-center justify-between ${
+                        isActive ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2 truncate">
+                        {c !== "all" && (
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              c === "sembako"
+                                ? "bg-amber-500"
+                                : c === "rokok"
+                                  ? "bg-rose-500"
+                                  : c === "alat-tulis"
+                                    ? "bg-blue-500"
+                                    : c === "listrik"
+                                      ? "bg-yellow-500"
+                                      : c === "lainnya"
+                                        ? "bg-slate-500"
+                                        : "bg-violet-500"
+                            }`}
+                          ></span>
+                        )}
+                        <span className="truncate">{CATEGORY_LABELS[c] || c}</span>
+                      </span>
+                      {isActive && <span className="text-indigo-600 dark:text-indigo-400 text-xs">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

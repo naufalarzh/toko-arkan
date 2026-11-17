@@ -1,10 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { formatPrice } from "../utils/helpers";
 
 const QUICK_AMOUNTS = [50000, 100000, 150000, 200000, 500000];
 
-export default function CheckoutModal({ show, onClose, totalPrice, totalItems, cashInput, setCashInput, cashNumber, change, isCashEnough, onConfirm }) {
+export default function CheckoutModal({ show, onClose, totalPrice, totalItems, cashInput, setCashInput, onConfirm }) {
+  // State lokal untuk biaya tambahan
+  const [extraFeeInput, setExtraFeeInput] = useState("");
+
+  // Reset biaya tambahan setiap kali modal dibuka
+  useEffect(() => {
+    if (show) {
+      setExtraFeeInput("");
+    }
+  }, [show]);
+
   if (!show) return null;
+
+  // Kalkulasi Biaya Tambahan
+  const extraFeeNumber = parseInt(extraFeeInput.replace(/[^0-9]/g, ""), 10) || 0;
+
+  // Total Tagihan Baru (Gabungan dari Web + Biaya Tambahan)
+  const grandTotal = totalPrice + extraFeeNumber;
+
+  // Kalkulasi Uang Kembalian & Kecukupan Uang
+  const cashNumber = parseInt(cashInput.replace(/[^0-9]/g, ""), 10) || 0;
+  const change = cashNumber - grandTotal;
+  const isCashEnough = cashNumber >= grandTotal && grandTotal > 0;
+
+  // Handler saat tombol Konfirmasi ditekan
+  const handleConfirm = () => {
+    if (!isCashEnough) return;
+
+    // Kirim data grandTotal yang baru ke fungsi onConfirm bawaan UserPage
+    onConfirm({
+      extraFee: extraFeeNumber,
+      grandTotal: grandTotal,
+      cash: cashNumber,
+      change: change,
+    });
+  };
+
+  // Handler untuk input biaya tambahan
+  const handleExtraFeeChange = (e) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    setExtraFeeInput(raw ? parseInt(raw, 10).toLocaleString("id-ID") : "");
+  };
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4">
@@ -26,17 +66,41 @@ export default function CheckoutModal({ show, onClose, totalPrice, totalItems, c
 
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5">
           {/* KOTAK TOTAL TAGIHAN (Solid) */}
-          <div className="bg-indigo-600 rounded-xl p-4 sm:p-5 text-white mb-4 sm:mb-5">
+          <div className="bg-indigo-600 rounded-xl p-4 sm:p-5 text-white mb-4 sm:mb-5 relative overflow-hidden">
             <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider mb-1">Total Tagihan</p>
-            <p className="text-2xl sm:text-3xl font-extrabold">{formatPrice(totalPrice)}</p>
-            <p className="text-xs text-indigo-200 mt-1">{totalItems} item</p>
+            <p className="text-2xl sm:text-3xl font-extrabold">{formatPrice(grandTotal)}</p>
+
+            {/* Tampilkan rincian jika ada biaya tambahan */}
+            {extraFeeNumber > 0 && (
+              <div className="mt-2 text-[11px] text-indigo-200 bg-indigo-700/50 inline-block px-2 py-1 rounded">
+                Keranjang: {formatPrice(totalPrice)} <span className="font-bold text-white mx-1">+</span> Tambahan: {formatPrice(extraFeeNumber)}
+              </div>
+            )}
+
+            <p className="text-xs text-indigo-200 mt-1">{totalItems} item dari web</p>
+          </div>
+
+          {/* INPUT BIAYA TAMBAHAN (BARU) */}
+          <div className="mb-4 bg-slate-50 dark:bg-slate-800/40 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700/60">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Biaya Tambahan (Manual)</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 font-bold">Rp</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={extraFeeInput}
+                onChange={handleExtraFeeChange}
+                placeholder="0 (Kosongkan jika tidak ada)"
+                className="w-full pl-11 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1.5">Gunakan ini untuk barang yang belum masuk ke sistem web.</p>
           </div>
 
           <div className="mb-4">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Uang Diterima</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-bold">Rp</span>
-              {/* ATRIBUT autoFocus TELAH DIHAPUS */}
               <input
                 type="text"
                 inputMode="numeric"
@@ -55,7 +119,7 @@ export default function CheckoutModal({ show, onClose, totalPrice, totalItems, c
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pilih Cepat</p>
             <div className="grid grid-cols-3 gap-2">
               <button
-                onClick={() => setCashInput(totalPrice.toLocaleString("id-ID"))}
+                onClick={() => setCashInput(grandTotal.toLocaleString("id-ID"))}
                 className="px-2 py-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[11px] sm:text-xs font-bold border border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-950/60 transition"
               >
                 Uang Pas
@@ -95,7 +159,7 @@ export default function CheckoutModal({ show, onClose, totalPrice, totalItems, c
 
         <div className="border-t border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900">
           <button
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={!isCashEnough}
             className={`w-full font-bold py-3 sm:py-3.5 rounded-xl transition-colors duration-200 text-sm sm:text-base ${
               isCashEnough ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
