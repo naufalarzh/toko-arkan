@@ -100,7 +100,7 @@ export function DebtProvider({ children }) {
         customer_id: customerId,
         amount: sisaSetelahBayar,
         date: new Date().toISOString().split("T")[0],
-        note: "Sisa Hutang (Setelah Pembayaran)",
+        note: "Sisa Hutang",
         status: "belum_lunas",
       });
       if (errInsert) throw errInsert;

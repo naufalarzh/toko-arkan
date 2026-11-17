@@ -296,7 +296,7 @@ export default function ProductForm() {
               type="text"
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
-              placeholder="Contoh: Indomie"
+              placeholder="Indomie ..."
               className={`${inputBaseClass} ${errors.name ? "border-rose-400 dark:border-rose-600" : "border-slate-200 dark:border-slate-700"}`}
             />
             {errors.name && <p className="mt-1 text-xs text-rose-500 font-semibold">⚠️ {errors.name}</p>}
@@ -447,7 +447,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
             type="text"
             value={variant.typeName}
             onChange={(e) => onUpdate(idx, "typeName", e.target.value)}
-            placeholder="Tipe (contoh: 1 Bungkus)"
+            placeholder="Tipe"
             className={`${inputBaseClass} ${errors[`v_${idx}_typeName`] ? "border-rose-400" : "border-slate-200 dark:border-slate-700"}`}
           />
           {errors[`v_${idx}_typeName`] && <p className="mt-1 text-[11px] text-rose-500 font-semibold">⚠️ {errors[`v_${idx}_typeName`]}</p>}

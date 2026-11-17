@@ -29,40 +29,44 @@ export default function ProductList() {
   const location = useLocation();
 
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [zeroPriceFilter, setZeroPriceFilter] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState(() => {
+    return sessionStorage.getItem("admin_category_filter") || "all";
+  });
+  const [zeroPriceFilter, setZeroPriceFilter] = useState(() => {
+    return sessionStorage.getItem("admin_zero_price_filter") === "true";
+  });
+
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // State & Ref untuk Highlight
   const [highlightId, setHighlightId] = useState(null);
   const rowRefs = useRef({});
-
   const dropdownRef = useRef(null);
 
-  // Efek untuk menangkap ID dari halaman form
+  useEffect(() => {
+    sessionStorage.setItem("admin_category_filter", categoryFilter);
+    sessionStorage.setItem("admin_zero_price_filter", zeroPriceFilter.toString());
+  }, [categoryFilter, zeroPriceFilter]);
+
   useEffect(() => {
     if (location.state?.highlightId) {
       setHighlightId(location.state.highlightId);
-
-      // Hapus state history agar tidak ter-highlight lagi saat di-refresh
       window.history.replaceState({}, document.title);
-
-      // Scroll ke elemen setelah render selesai
-      setTimeout(() => {
-        if (rowRefs.current[location.state.highlightId]) {
-          rowRefs.current[location.state.highlightId].scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }, 150);
-
-      // Hilangkan highlight setelah 3 detik
-      const timer = setTimeout(() => setHighlightId(null), 3000);
-      return () => clearTimeout(timer);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    if (highlightId && products.length > 0) {
+      const timer = setTimeout(() => {
+        const row = rowRefs.current[highlightId];
+        if (row) {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => setHighlightId(null), 3000);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightId, products]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -78,7 +82,7 @@ export default function ProductList() {
 
   const filtered = products.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = categoryFilter === "all" || p.category === categoryFilter;
+    const matchCat = zeroPriceFilter ? true : categoryFilter === "all" || p.category === categoryFilter;
     const matchZeroPrice = !zeroPriceFilter || p.variants.some((v) => v.priceNumber === 0);
 
     return matchSearch && matchCat && matchZeroPrice;
@@ -91,7 +95,19 @@ export default function ProductList() {
     }
   };
 
-  const currentLabel = CATEGORY_LABELS[categoryFilter] || categoryFilter;
+  const currentLabel = zeroPriceFilter ? "Semua Produk Rp 0" : CATEGORY_LABELS[categoryFilter] || categoryFilter;
+
+  const handleCategorySelect = (catId) => {
+    setCategoryFilter(catId);
+    setZeroPriceFilter(false);
+    setDropdownOpen(false);
+  };
+
+  const handleZeroPriceSelect = () => {
+    setCategoryFilter("all");
+    setZeroPriceFilter(true);
+    setDropdownOpen(false);
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -130,45 +146,36 @@ export default function ProductList() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={() => setZeroPriceFilter(!zeroPriceFilter)}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-              zeroPriceFilter
-                ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400"
-                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/60"
-            }`}
-          >
-            <span className={`w-2 h-2 rounded-full ${zeroPriceFilter ? "bg-emerald-500" : "bg-slate-400"}`}></span>
-            Rp 0 / Gratis
-          </button>
-
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setDropdownOpen((v) => !v)}
-              className="w-full sm:w-52 flex items-center justify-between gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className={`w-full sm:w-60 flex items-center justify-between gap-2 px-4 py-2.5 border rounded-lg text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                zeroPriceFilter
+                  ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400"
+                  : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700/60"
+              }`}
             >
               <span className="flex items-center gap-2 truncate">
-                {categoryFilter !== "all" && <span className={`w-2 h-2 rounded-full ${getCategoryColor(categoryFilter).split(" ")[0].replace("bg-", "bg-").replace("-100", "-500")}`}></span>}
+                {zeroPriceFilter && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
+                {!zeroPriceFilter && categoryFilter !== "all" && (
+                  <span className={`w-2 h-2 rounded-full ${getCategoryColor(categoryFilter).split(" ")[0].replace("bg-", "bg-").replace("-100", "-500")}`}></span>
+                )}
                 <span className="truncate">{currentLabel}</span>
               </span>
               <span className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}>▼</span>
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 sm:left-0 sm:right-auto z-30 mt-2 w-full sm:w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl overflow-hidden animate-fade-in">
+              <div className="absolute right-0 sm:left-0 sm:right-auto z-30 mt-2 w-full sm:w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl overflow-hidden animate-fade-in flex flex-col max-h-80 overflow-y-auto">
                 {categories.map((c) => {
-                  const isActive = categoryFilter === c;
+                  const isActive = !zeroPriceFilter && categoryFilter === c;
                   return (
                     <button
                       key={c}
                       type="button"
-                      onClick={() => {
-                        setCategoryFilter(c);
-                        setDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition flex items-center justify-between ${
+                      onClick={() => handleCategorySelect(c)}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition flex items-center justify-between flex-shrink-0 ${
                         isActive ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                       }`}
                     >
@@ -196,96 +203,171 @@ export default function ProductList() {
                     </button>
                   );
                 })}
+
+                <div className="h-px bg-slate-200 dark:bg-slate-800 my-1 w-full flex-shrink-0"></div>
+
+                <button
+                  type="button"
+                  onClick={handleZeroPriceSelect}
+                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition flex items-center justify-between flex-shrink-0 ${
+                    zeroPriceFilter ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="truncate">Tampilkan Semua Rp 0</span>
+                  </span>
+                  {zeroPriceFilter && <span className="text-emerald-600 dark:text-emerald-400 text-xs">✓</span>}
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Produk</th>
-                <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Kategori</th>
-                <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Varian</th>
-                <th className="text-right px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center py-12 text-slate-400">
-                    <div className="text-4xl mb-2">📦</div>
-                    <p className="text-sm font-semibold">Tidak ada produk ditemukan</p>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((p) => {
-                  const isHighlighted = highlightId === p.id;
-                  return (
-                    <tr
-                      key={p.id}
-                      // Simpan ref untuk row ini agar bisa di-scroll
-                      ref={(el) => (rowRefs.current[p.id] = el)}
-                      className={`transition-colors duration-500 ${
-                        isHighlighted
-                          ? "bg-amber-100/70 dark:bg-amber-900/30" // Warna Highlight (Kuning)
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                      }`}
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={resolveImage(p.variants[0]?.image, 200)}
-                            alt={p.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-12 h-12 rounded-md object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex-shrink-0"
-                            onError={handleImageError}
-                          />
-                          <div className="min-w-0">
-                            <p className="font-bold text-slate-900 dark:text-white truncate">{p.name}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">ID #{p.id}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
-                          {CATEGORY_LABELS[p.category] || p.category}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="font-bold text-slate-700 dark:text-slate-300">{p.variants.length} varian</span>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{p.variants.map((v) => v.typeName).join(", ")}</p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            to={`/admin/products/${p.id}/edit`}
-                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
-                          >
-                            Edit
-                          </Link>
-
-                          <button
-                            onClick={() => setDeleteTarget(p)}
-                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-950 transition"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+      {/* Kondisi Kosong */}
+      {filtered.length === 0 ? (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-400">
+          <div className="text-4xl mb-2">📦</div>
+          <p className="text-sm font-semibold">Tidak ada produk ditemukan</p>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* ========================================= */}
+          {/* TAMPILAN DESKTOP (TABEL)                  */}
+          {/* ========================================= */}
+          <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Produk</th>
+                    <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Kategori</th>
+                    <th className="text-left px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Varian</th>
+                    <th className="text-right px-5 py-3 font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {filtered.map((p) => {
+                    const isHighlighted = highlightId === p.id;
+                    return (
+                      <tr
+                        key={p.id}
+                        ref={(el) => (rowRefs.current[p.id] = el)}
+                        className={`transition-all duration-1000 ${
+                          isHighlighted
+                            ? "bg-amber-100 dark:bg-amber-500/20 border-l-4 border-amber-500 dark:border-amber-400 shadow-[inset_0_0_15px_rgba(245,158,11,0.2)]"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800/40 border-l-4 border-transparent"
+                        }`}
+                      >
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={resolveImage(p.variants[0]?.image, 200)}
+                              alt={p.name}
+                              loading="lazy"
+                              className="w-12 h-12 rounded-md object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex-shrink-0"
+                              onError={handleImageError}
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-slate-900 dark:text-white truncate">{p.name}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">ID #{p.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
+                            {CATEGORY_LABELS[p.category] || p.category}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="font-bold text-slate-700 dark:text-slate-300">{p.variants.length} varian</span>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{p.variants.map((v) => v.typeName).join(", ")}</p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              to={`/admin/products/${p.id}/edit`}
+                              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => setDeleteTarget(p)}
+                              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-950 transition"
+                            >
+                              Hapus
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ========================================= */}
+          {/* TAMPILAN MOBILE (2 KOLOM CARD)            */}
+          {/* ========================================= */}
+          <div className="md:hidden grid grid-cols-2 gap-3">
+            {filtered.map((p) => {
+              const isHighlighted = highlightId === p.id;
+              return (
+                <div
+                  key={p.id}
+                  ref={(el) => (rowRefs.current[p.id] = el)}
+                  className={`bg-white dark:bg-slate-900 rounded-xl border p-3 flex flex-col justify-between transition-all duration-1000 ${
+                    isHighlighted ? "bg-amber-100 dark:bg-amber-500/20 border-amber-500 dark:border-amber-400 shadow-[inset_0_0_15px_rgba(245,158,11,0.2)]" : "border-slate-200 dark:border-slate-800"
+                  }`}
+                >
+                  <div>
+                    <div className="flex gap-2 mb-2 items-start">
+                      <img
+                        src={resolveImage(p.variants[0]?.image, 200)}
+                        alt={p.name}
+                        className="w-12 h-12 rounded-md object-cover bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex-shrink-0"
+                        onError={handleImageError}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-slate-900 dark:text-white text-[13px] leading-tight line-clamp-2 mb-0.5">{p.name}</p>
+                        <p className="text-[10px] text-slate-500 font-mono">ID #{p.id}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
+                        {CATEGORY_LABELS[p.category] || p.category}
+                      </span>
+                      <span className="inline-flex items-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold">
+                        {p.variants.length} Varian
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mb-3">{p.variants.map((v) => v.typeName).join(", ")}</p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 mt-auto pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <Link
+                      to={`/admin/products/${p.id}/edit`}
+                      className="flex-1 py-1.5 text-center text-[11px] font-bold rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 active:bg-indigo-100 transition"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => setDeleteTarget(p)}
+                      className="flex-1 py-1.5 text-[11px] font-bold rounded bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 active:bg-rose-100 transition"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       <ConfirmDialog
         open={!!deleteTarget}

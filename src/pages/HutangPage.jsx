@@ -549,7 +549,7 @@ export default function HutangPage() {
                         setShowSuggestions(true);
                       }}
                       onFocus={() => setShowSuggestions(true)}
-                      placeholder="Ketik nama (atau pilih)..."
+                      placeholder="Masukan nama pelanggan"
                       className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                     />
 

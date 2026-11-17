@@ -88,7 +88,7 @@ export default function LoginAdmin() {
           </button>
 
           <Link to="/" className="mt-4 block text-center text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-            ← Kembali ke Toko
+          Kembali ke Toko
           </Link>
         </form>
       </div>
