@@ -185,7 +185,6 @@ export default function ProductForm() {
 
     form.variants.forEach((v, i) => {
       if (!v.typeName.trim()) errs[`v_${i}_typeName`] = "Nama varian wajib diisi";
-      // Validasi harga dihilangkan agar boleh kosong / Rp 0
     });
 
     setErrors(errs);
@@ -237,12 +236,16 @@ export default function ProductForm() {
 
     setSubmitting(true);
     try {
+      let savedId = Number(id);
+
       if (isEdit) {
         await updateProduct(Number(id), payload);
       } else {
-        await addProduct(payload);
+        savedId = await addProduct(payload);
       }
-      navigate("/admin/products");
+
+      // Navigate dengan state highlightId
+      navigate("/admin/products", { state: { highlightId: savedId } });
     } catch (err) {
       console.error(err);
       setShowErrorBanner(true);
@@ -259,7 +262,6 @@ export default function ProductForm() {
   return (
     <div className="min-h-screen flex justify-center">
       <div className="w-full max-w-2xl p-4 sm:p-6 lg:p-8">
-        {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-5">
           <Link to="/admin/products" className="hover:text-indigo-600">
             Produk
@@ -273,7 +275,6 @@ export default function ProductForm() {
           <p className="text-sm text-slate-500 dark:text-slate-400">Setiap tipe bisa punya gambar sendiri</p>
         </div>
 
-        {/* Banner Error */}
         {showErrorBanner && (
           <div className="mb-4 px-4 py-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 flex items-start gap-3 animate-toast-in">
             <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">!</div>
@@ -288,7 +289,6 @@ export default function ProductForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ===== NAMA BARANG ===== */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Nama Barang *</label>
             <input
@@ -302,7 +302,6 @@ export default function ProductForm() {
             {errors.name && <p className="mt-1 text-xs text-rose-500 font-semibold">⚠️ {errors.name}</p>}
           </div>
 
-          {/* ===== KATEGORI ===== */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Kategori</label>
             <div className="flex flex-wrap gap-2">
@@ -326,7 +325,6 @@ export default function ProductForm() {
             </div>
           </div>
 
-          {/* ===== VARIAN ===== */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <div className="mb-4">
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipe / Variasi *</label>
@@ -365,7 +363,6 @@ export default function ProductForm() {
             </button>
           </div>
 
-          {/* ===== ACTIONS ===== */}
           <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-2 pb-6">
             <Link
               to="/admin/products"
@@ -390,9 +387,6 @@ export default function ProductForm() {
   );
 }
 
-// ============================================================
-// KOMPONEN VARIANT CARD
-// ============================================================
 function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRemove, onMove, onUpload, onPaste, onRemoveImage, urlInputVisible, setUrlInputVisible, cardRef, inputBaseClass }) {
   const fileInputRef = useRef(null);
   const showUrl = urlInputVisible[idx] || false;
@@ -402,7 +396,6 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
   };
 
   const hasError = errors[`v_${idx}_typeName`];
-
   const previewSrc = resolveImage(variant.image, 200);
 
   return (
@@ -412,7 +405,6 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
         hasError ? "border-rose-300 dark:border-rose-800 bg-rose-50/30 dark:bg-rose-950/20" : "border-slate-200 dark:border-slate-800"
       }`}
     >
-      {/* Header Varian */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <div className="flex flex-col gap-0.5">
@@ -449,7 +441,6 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
         </button>
       </div>
 
-      {/* Nama Varian & Harga */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
         <div>
           <input
@@ -475,12 +466,10 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
         </div>
       </div>
 
-      {/* Gambar Section */}
       <div className="mt-3">
         <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
           Gambar untuk tipe ini <span className="text-slate-400 normal-case font-normal">(opsional)</span>
         </p>
-
         <div className="grid grid-cols-3 gap-1.5">
           <button
             type="button"
@@ -501,11 +490,7 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
           <button
             type="button"
             onClick={toggleUrl}
-            className={`flex items-center justify-center px-2 py-2 rounded-lg border text-[11px] font-bold transition focus:outline-none ${
-              showUrl
-                ? "bg-indigo-600 text-white border-indigo-600"
-                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
-            }`}
+            className={`flex items-center justify-center px-2 py-2 rounded-lg border text-[11px] font-bold transition focus:outline-none ${showUrl ? "bg-indigo-600 text-white border-indigo-600" : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
           >
             URL
           </button>
@@ -536,13 +521,10 @@ function VariantCard({ idx, variant, errors, total, isUploading, onUpdate, onRem
         )}
 
         <p className="mt-1.5 text-[10px] text-slate-400 dark:text-slate-500">Kosongkan saja kalau tidak ada gambar</p>
-
         {errors[`v_${idx}_image`] && <p className="mt-1 text-[11px] text-rose-500 font-semibold">⚠️ {errors[`v_${idx}_image`]}</p>}
 
-        {/* Preview */}
         <div className="mt-2.5 flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
           <img src={previewSrc} alt="preview" className="w-12 h-12 rounded-md object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0" onError={handleImageError} />
-
           <div className="flex-1 min-w-0 flex items-center justify-between">
             <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Pratinjau Gambar</p>
             {variant.image && variant.image !== DEFAULT_IMAGE && (

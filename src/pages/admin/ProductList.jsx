@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useProducts } from "../../context/ProductContext";
 import ConfirmDialog from "../../components/admin/ConfirmDialog";
 import { resolveImage, handleImageError } from "../../utils/resolveImage";
@@ -26,12 +26,43 @@ const getCategoryColor = (category) => CATEGORY_COLORS[category] || DEFAULT_CATE
 
 export default function ProductList() {
   const { products, deleteProduct } = useProducts();
+  const location = useLocation();
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [zeroPriceFilter, setZeroPriceFilter] = useState(false); // STATE BARU UNTUK FILTER RP 0
+  const [zeroPriceFilter, setZeroPriceFilter] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // State & Ref untuk Highlight
+  const [highlightId, setHighlightId] = useState(null);
+  const rowRefs = useRef({});
+
   const dropdownRef = useRef(null);
+
+  // Efek untuk menangkap ID dari halaman form
+  useEffect(() => {
+    if (location.state?.highlightId) {
+      setHighlightId(location.state.highlightId);
+
+      // Hapus state history agar tidak ter-highlight lagi saat di-refresh
+      window.history.replaceState({}, document.title);
+
+      // Scroll ke elemen setelah render selesai
+      setTimeout(() => {
+        if (rowRefs.current[location.state.highlightId]) {
+          rowRefs.current[location.state.highlightId].scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 150);
+
+      // Hilangkan highlight setelah 3 detik
+      const timer = setTimeout(() => setHighlightId(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,12 +76,9 @@ export default function ProductList() {
 
   const categories = ["all", ...new Set(products.map((p) => p.category))];
 
-  // LOGIKA FILTER DIPERBARUI
   const filtered = products.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = categoryFilter === "all" || p.category === categoryFilter;
-
-    // Jika zeroPriceFilter aktif, cek apakah ada varian dengan priceNumber === 0
     const matchZeroPrice = !zeroPriceFilter || p.variants.some((v) => v.priceNumber === 0);
 
     return matchSearch && matchCat && matchZeroPrice;
@@ -102,7 +130,6 @@ export default function ProductList() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* TOMBOL FILTER RP 0 BARU */}
           <button
             type="button"
             onClick={() => setZeroPriceFilter(!zeroPriceFilter)}
@@ -113,10 +140,9 @@ export default function ProductList() {
             }`}
           >
             <span className={`w-2 h-2 rounded-full ${zeroPriceFilter ? "bg-emerald-500" : "bg-slate-400"}`}></span>
-            Rp 0
+            Rp 0 / Gratis
           </button>
 
-          {/* Custom Dropdown Kategori */}
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
@@ -197,52 +223,64 @@ export default function ProductList() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={resolveImage(p.variants[0]?.image, 200)}
-                          alt={p.name}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-12 h-12 rounded-md object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex-shrink-0"
-                          onError={handleImageError}
-                        />
-                        <div className="min-w-0">
-                          <p className="font-bold text-slate-900 dark:text-white truncate">{p.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">ID #{p.id}</p>
+                filtered.map((p) => {
+                  const isHighlighted = highlightId === p.id;
+                  return (
+                    <tr
+                      key={p.id}
+                      // Simpan ref untuk row ini agar bisa di-scroll
+                      ref={(el) => (rowRefs.current[p.id] = el)}
+                      className={`transition-colors duration-500 ${
+                        isHighlighted
+                          ? "bg-amber-100/70 dark:bg-amber-900/30" // Warna Highlight (Kuning)
+                          : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                      }`}
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={resolveImage(p.variants[0]?.image, 200)}
+                            alt={p.name}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-12 h-12 rounded-md object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex-shrink-0"
+                            onError={handleImageError}
+                          />
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 dark:text-white truncate">{p.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">ID #{p.id}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
-                        {CATEGORY_LABELS[p.category] || p.category}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="font-bold text-slate-700 dark:text-slate-300">{p.variants.length} varian</span>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{p.variants.map((v) => v.typeName).join(", ")}</p>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          to={`/admin/products/${p.id}/edit`}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
-                        >
-                          Edit
-                        </Link>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getCategoryColor(p.category)}`}>
+                          {CATEGORY_LABELS[p.category] || p.category}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{p.variants.length} varian</span>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{p.variants.map((v) => v.typeName).join(", ")}</p>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            to={`/admin/products/${p.id}/edit`}
+                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-950 transition"
+                          >
+                            Edit
+                          </Link>
 
-                        <button
-                          onClick={() => setDeleteTarget(p)}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-950 transition"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <button
+                            onClick={() => setDeleteTarget(p)}
+                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-950 transition"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
