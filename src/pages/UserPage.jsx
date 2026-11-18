@@ -218,7 +218,7 @@ export default function UserPage() {
               <span className="ml-1.5 text-xs">({filteredProducts.length} produk)</span>
             </div>
             <button onClick={() => setSearchQuery("")} className="text-xs font-semibold text-rose-500 hover:text-rose-700 transition px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30">
-              ✕ Hapus pencarian
+            
             </button>
           </div>
         )}
