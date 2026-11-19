@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useProducts } from "../../context/ProductContext";
 import { uploadImage, deleteImage } from "../../utils/imageUpload";
 import { resolveImage, handleImageError, DEFAULT_IMAGE } from "../../utils/resolveImage";
+import { toTitleCaseLive } from "../../utils/textFormat";
 
 const emptyVariant = () => ({
   typeName: "",
@@ -61,8 +62,45 @@ export default function ProductForm() {
     }
   }, [id, isEdit, products, navigate]);
 
+  // =========================================================================
+  // FITUR BARU: Global Paste (CTRL + V)
+  // =========================================================================
+  useEffect(() => {
+    const handleGlobalPaste = async (e) => {
+      // Jangan jalankan jika user sedang fokus di input text/textarea
+      const activeTag = document.activeElement?.tagName;
+      if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+
+      // Cari indeks varian pertama yang gambarnya masih kosong
+      const targetIdx = form.variants.findIndex((v) => !v.image || v.image === DEFAULT_IMAGE);
+
+      if (targetIdx === -1) return;
+
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find((t) => t.startsWith("image/"));
+          if (imageType) {
+            e.preventDefault();
+            const blob = await item.getType(imageType);
+            const file = new File([blob], "pasted.png", { type: imageType });
+            await handleFileUpload(targetIdx, file);
+            return;
+          }
+        }
+      } catch (err) {
+        console.log("Clipboard kosong atau tidak ada gambar.");
+      }
+    };
+
+    document.addEventListener("paste", handleGlobalPaste);
+    return () => document.removeEventListener("paste", handleGlobalPaste);
+  }, [form.variants]);
+  // =========================================================================
+
   const updateField = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    const processedValue = field === "name" ? toTitleCaseLive(value) : value;
+    setForm((prev) => ({ ...prev, [field]: processedValue }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
@@ -74,6 +112,8 @@ export default function ProductForm() {
       if (field === "price") {
         const numeric = value.replace(/[^0-9]/g, "");
         processedValue = numeric ? "Rp " + parseInt(numeric, 10).toLocaleString("id-ID") : "";
+      } else if (field === "typeName") {
+        processedValue = toTitleCaseLive(value);
       }
 
       variants[idx] = { ...variants[idx], [field]: processedValue };
@@ -244,7 +284,6 @@ export default function ProductForm() {
         savedId = await addProduct(payload);
       }
 
-      // Navigate dengan state highlightId
       navigate("/admin/products", { state: { highlightId: savedId } });
     } catch (err) {
       console.error(err);

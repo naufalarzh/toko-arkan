@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ConfirmDialog from "../components/admin/ConfirmDialog";
 import { formatPrice } from "../utils/helpers";
+import { toTitleCaseLive } from "../utils/textFormat";
 import { useDebts } from "../context/DebtContext";
 
 export default function HutangPage() {
@@ -190,7 +191,7 @@ export default function HutangPage() {
 
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
           <button onClick={() => setSelectedCustomerId(null)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition mb-6">
-          Kembali ke Daftar Pelanggan
+            Kembali ke Daftar Pelanggan
           </button>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -236,7 +237,7 @@ export default function HutangPage() {
                   onClick={() => setIsPayModalOpen(true)}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 text-xs sm:text-sm rounded-lg shadow-md transition active:scale-95 whitespace-nowrap"
                 >
-                Bayar Hutang
+                  Bayar Hutang
                 </button>
               )}
             </div>
@@ -288,7 +289,7 @@ export default function HutangPage() {
                   type="text"
                   required
                   value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
+                  onChange={(e) => setEditName(toTitleCaseLive(e.target.value))}
                   className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
                 />
                 <div className="flex gap-2">
@@ -345,7 +346,7 @@ export default function HutangPage() {
                   <input
                     type="text"
                     value={editDebtData.note}
-                    onChange={(e) => setEditDebtData({ ...editDebtData, note: e.target.value })}
+                    onChange={(e) => setEditDebtData({ ...editDebtData, note: toTitleCaseLive(e.target.value) })}
                     placeholder="Contoh: Beras 5kg"
                     className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -544,11 +545,9 @@ export default function HutangPage() {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => {
-                        setFormData({ ...formData, name: e.target.value });
-                        setShowSuggestions(true);
-                      }}
+                      onChange={(e) => setFormData({ ...formData, name: toTitleCaseLive(e.target.value) })}
                       onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                       placeholder="Masukan nama pelanggan"
                       className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                     />
@@ -608,7 +607,7 @@ export default function HutangPage() {
                     <input
                       type="text"
                       value={formData.note}
-                      onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, note: toTitleCaseLive(e.target.value) })}
                       placeholder="Contoh: Beras 5kg"
                       className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
                     />
